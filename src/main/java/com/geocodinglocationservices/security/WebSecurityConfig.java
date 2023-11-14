@@ -19,10 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableMethodSecurity
-// (securedEnabled = true,
-// jsr250Enabled = true,
-// prePostEnabled = true) // by default
-public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
   @Autowired
   UserDetailsServiceImpl userDetailsService;
 
@@ -34,6 +31,10 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
     return new AuthTokenFilter();
   }
 
+  private static final String[] WHITE_LIST_URLS = {
+          "/api/medicine-requests*",
+
+  };
   
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
@@ -59,12 +60,12 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> 
+        .authorizeHttpRequests(auth ->
           auth.requestMatchers("/api/auth/**").permitAll()
-              .requestMatchers("/api/test/**").permitAll()
+                  .requestMatchers("/api/medicine-requests/**").permitAll()
               .anyRequest().authenticated()
         );
-    
+
     http.authenticationProvider(authenticationProvider());
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

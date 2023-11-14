@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "medicine")
-public class Medicine {
+public class InvoiceMedicine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
