@@ -1,9 +1,11 @@
 package com.geocodinglocationservices.Service.impl;
 
 import com.geocodinglocationservices.Service.PrescriptionService;
+import com.geocodinglocationservices.models.Pharmacist;
 import com.geocodinglocationservices.models.Prescription;
 import com.geocodinglocationservices.models.Role;
 import com.geocodinglocationservices.models.User;
+import com.geocodinglocationservices.payload.request.PharmacistIdRequest;
 import com.geocodinglocationservices.payload.request.PrescriptionRequest;
 import com.geocodinglocationservices.repository.PrescriptionRepo;
 import com.geocodinglocationservices.repository.UserRepository;
@@ -19,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         }
     }
     @Override
-    public Prescription storeFile(MultipartFile file, User userId) {
+    public Prescription storeFile(MultipartFile file, User userId, PharmacistIdRequest pharmacistIdRequest) {
 
             String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
@@ -63,6 +64,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 prescription.setFileName(fileName);
                 prescription.setFilePath(targetLocation.toString());
                 prescription.setUser(userId);
+                prescription.setPharmacists((List<Pharmacist>) pharmacistIdRequest);
 
                return prescriptionRepo.save(prescription);
 
@@ -92,7 +94,6 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
         Set<Role> roles = user.get().getRoles();
 
-        // Check if the user has the 'CUSTOMER' role
         boolean isPharmacist = roles.stream()
                 .anyMatch(role -> role.getName().equals("ROLE_PHARMACIST"));
 

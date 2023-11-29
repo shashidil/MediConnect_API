@@ -7,12 +7,14 @@ import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.geocodinglocationservices.repository.RoleRepository;
 import com.geocodinglocationservices.repository.UserRepository;
+import com.geocodinglocationservices.utill.GeocodingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 @Service
@@ -33,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private ModelMapper modelMapper = new ModelMapper();
 
 
-    public User registerUser(SignupRequest signUpRequest) {
+    public User registerUser(SignupRequest signUpRequest) throws IOException {
         Set<String> strRoles = signUpRequest.getRole(); // Accept roles as a set of strings
         Set<Role> roles = new HashSet<>();
         User user = null;
@@ -53,6 +55,24 @@ public class AuthServiceImpl implements AuthService {
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
                         Pharmacist pharmacist = modelMapper.map(signUpRequest, Pharmacist.class);
+
+                        // Concatenate address components to form a full address
+                        String fullAddress = String.format("%s, %s, %s",
+                                pharmacist.getAddressLine1(),
+                                pharmacist.getCity(),
+                                pharmacist.getStates());
+                                //pharmacist.getPostalCode());
+
+                        // Use the full address for geocoding
+                        GeocodingService.LatLng coordinates = GeocodingService.getCoordinates(fullAddress);
+                        //NominatimGeocodingService.LatLng coordinates = NominatimGeocodingService.getCoordinates(fullAddress);
+
+                        if (coordinates != null) {
+                            pharmacist.setLatitude(coordinates.latitude);
+                            pharmacist.setLongitude(coordinates.longitude);
+
+                        }
+
                         pharmacist.setRoles(roles);
                         pharmacistRepo.save(pharmacist);
                         user = pharmacist;

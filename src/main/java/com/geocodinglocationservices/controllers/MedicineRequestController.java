@@ -4,11 +4,10 @@ import com.geocodinglocationservices.Service.MedicineRequestService;
 import com.geocodinglocationservices.Service.PrescriptionService;
 import com.geocodinglocationservices.models.Prescription;
 import com.geocodinglocationservices.models.User;
-import com.geocodinglocationservices.payload.request.MedicineRequest;
+import com.geocodinglocationservices.payload.request.PharmacistIdRequest;
 import com.geocodinglocationservices.payload.request.PrescriptionRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +28,8 @@ public class MedicineRequestController {
 
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     @PostMapping("/uploadPrescription/{id}")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable("id")User userId) {
-        Prescription prescription = prescriptionService.storeFile(file, userId);
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable("id")User userId, @Valid @RequestBody PharmacistIdRequest pharmacistIdRequest) {
+        Prescription prescription = prescriptionService.storeFile(file, userId,pharmacistIdRequest);
         return ResponseEntity.ok("File uploaded successfully: ");
     }
     @PostMapping("/uploadMedicine/{id}")
@@ -45,6 +44,7 @@ public class MedicineRequestController {
         List<Prescription> prescriptions = prescriptionService.getAllPrescriptionsForPharmacist(userId);
         return ResponseEntity.ok(prescriptions);
     }
+
 
 
 }

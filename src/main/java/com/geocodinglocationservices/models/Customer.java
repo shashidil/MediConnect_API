@@ -39,6 +39,9 @@ public class Customer extends User {
     @NotEmpty(message = "Postal code is required")
     @Size(max = 10, message = "Pharmacy location can have a maximum of 100 characters")
     private String postalCode;
+
+    private Double latitude;
+    private Double longitude;
 //    private Set<Role> role;
 
 //    @OneToOne(cascade = CascadeType.ALL)
