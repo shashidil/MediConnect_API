@@ -18,6 +18,9 @@ public class MedicineInvoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String invoiceNumber;
+
     private String patientName;
 
     @Column(nullable = false)
@@ -30,6 +33,8 @@ public class MedicineInvoice {
     private int medicationQuantity;
     @Column(nullable = false)
     private Double amount;
+    @Column(nullable = false)
+    private Double total;
     private String additionalNotes;
 
     @CreationTimestamp
@@ -42,5 +47,9 @@ public class MedicineInvoice {
     @ManyToOne
     @JoinColumn(name = "pharmacist_id", nullable = false)
     private Pharmacist pharmacist;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
 }

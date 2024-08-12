@@ -3,6 +3,8 @@ package com.geocodinglocationservices.Service.impl;
 import com.geocodinglocationservices.Service.AuthService;
 import com.geocodinglocationservices.models.*;
 import com.geocodinglocationservices.payload.request.SignupRequest;
+import com.geocodinglocationservices.payload.request.SignupRequestPatient;
+import com.geocodinglocationservices.payload.request.SignupRequestPharmacist;
 import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.geocodinglocationservices.repository.RoleRepository;
@@ -36,7 +38,31 @@ public class AuthServiceImpl implements AuthService {
 
 
     public User registerUser(SignupRequest signUpRequest) throws IOException {
-        Set<String> strRoles = signUpRequest.getRole(); // Accept roles as a set of strings
+        Set<String> strRoles;
+        String fullAddress;
+        GeocodingService.LatLng coordinates;
+        if (isPatientDataValid(signUpRequest)) {
+            SignupRequestPatient patient = signUpRequest.getSignupRequestPatient();
+            strRoles = patient.getRole();
+        } else if (isPharmacistDataValid(signUpRequest)) {
+            SignupRequestPharmacist pharmacist = signUpRequest.getSignupRequestPharmacist();
+            strRoles = pharmacist.getRole();
+        } else {
+            // Handle the case where neither patient nor pharmacist role is provided
+            throw new RuntimeException("Error: Role is not provided!");
+        }
+
+//        if (signUpRequest.getSignupRequestPatient() != null&& isPatientDataNotEmpty(signUpRequest.getSignupRequestPatient())){
+//            SignupRequestPatient patient = signUpRequest.getSignupRequestPatient();
+//            strRoles = patient.getRole();
+//        } else if (signUpRequest.getSignupRequestPharmacist() != null  && isPharmacistDataNotEmpty(signUpRequest.getSignupRequestPharmacist())) {
+//            SignupRequestPharmacist pharmacist = signUpRequest.getSignupRequestPharmacist();
+//            strRoles=pharmacist.getRole();
+//        } else {
+//            // Handle the case where neither patient nor pharmacist role is provided
+//             throw new RuntimeException("Error: Role is not provided!");
+//        }
+
         Set<Role> roles = new HashSet<>();
         User user = null;
 
@@ -50,21 +76,21 @@ public class AuthServiceImpl implements AuthService {
                         // Handle admin role
                         // Create an Admin class if needed and save it
                         break;
-                    case "pharmacist":
+                    case "Pharmacist":
                         Role modRole = roleRepository.findByName(ERole.ROLE_PHARMACIST)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
-                        Pharmacist pharmacist = modelMapper.map(signUpRequest, Pharmacist.class);
+                        Pharmacist pharmacist = modelMapper.map(signUpRequest.getSignupRequestPharmacist(), Pharmacist.class);
 
                         // Concatenate address components to form a full address
-                        String fullAddress = String.format("%s, %s, %s",
+                         fullAddress = String.format("%s, %s, %s",
                                 pharmacist.getAddressLine1(),
                                 pharmacist.getCity(),
                                 pharmacist.getStates());
                                 //pharmacist.getPostalCode());
 
                         // Use the full address for geocoding
-                        GeocodingService.LatLng coordinates = GeocodingService.getCoordinates(fullAddress);
+                         coordinates = GeocodingService.getCoordinates(fullAddress);
                         //NominatimGeocodingService.LatLng coordinates = NominatimGeocodingService.getCoordinates(fullAddress);
 
                         if (coordinates != null) {
@@ -76,15 +102,39 @@ public class AuthServiceImpl implements AuthService {
                         pharmacist.setRoles(roles);
                         pharmacistRepo.save(pharmacist);
                         user = pharmacist;
+                        user.setUsername(signUpRequest.getSignupRequestPharmacist().getUsername());
+                        user.setEmail(signUpRequest.getSignupRequestPharmacist().getEmail());
+                        user.setPassword(passwordEncoder.encode(signUpRequest.getSignupRequestPharmacist().getPassword()));
                         break;
                     case "customer":
                         Role cusRole = roleRepository.findByName(ERole.ROLE_CUSTOMER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(cusRole);
-                        Customer customer = modelMapper.map(signUpRequest, Customer.class);
+                        Customer customer = modelMapper.map(signUpRequest.getSignupRequestPatient(), Customer.class);
+
+                        // Concatenate address components to form a full address
+                         fullAddress = String.format("%s, %s, %s",
+                                customer.getAddressLine1(),
+                                customer.getCity(),
+                                customer.getStates());
+                        //pharmacist.getPostalCode());
+
+                        // Use the full address for geocoding
+                         coordinates = GeocodingService.getCoordinates(fullAddress);
+                        //NominatimGeocodingService.LatLng coordinates = NominatimGeocodingService.getCoordinates(fullAddress);
+
+                        if (coordinates != null) {
+                            customer.setLatitude(coordinates.latitude);
+                            customer.setLongitude(coordinates.longitude);
+
+                        }
+
                         customer.setRoles(roles);
                         customerRepo.save(customer);
                         user = customer;
+                        user.setUsername(signUpRequest.getSignupRequestPatient().getUsername());
+                        user.setEmail(signUpRequest.getSignupRequestPatient().getEmail());
+                        user.setPassword(passwordEncoder.encode(signUpRequest.getSignupRequestPatient().getPassword()));
                         break;
                     default:
                         throw new RuntimeException("Error: Role is not found.");
@@ -92,15 +142,46 @@ public class AuthServiceImpl implements AuthService {
             }
 
             // Save user data in the User table
-            user.setUsername(signUpRequest.getUsername());
-            user.setEmail(signUpRequest.getEmail());
-            user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+
             userRepository.save(user);
 
             return user;
         }
+
+
+    }
+//    private boolean isPatientDataNotEmpty(SignupRequestPatient patient) {
+//        return !StringUtils.isBlank(patient.getUsername()) && !StringUtils.isBlank(patient.getEmail());
+//    }
+//
+//    private boolean isPharmacistDataNotEmpty(SignupRequestPharmacist pharmacist) {
+//        return !StringUtils.isBlank(pharmacist.getUsername()) && !StringUtils.isBlank(pharmacist.getEmail());
+//    }
+private boolean isPatientDataValid(SignupRequest signUpRequest) {
+    SignupRequestPatient patient = signUpRequest.getSignupRequestPatient();
+    return patient != null && isPatientDataNotEmpty(patient);
+}
+    private boolean isPharmacistDataValid(SignupRequest signUpRequest) {
+        SignupRequestPharmacist pharmacist = signUpRequest.getSignupRequestPharmacist();
+        return pharmacist != null && isPharmacistDataNotEmpty(pharmacist);
     }
 
+    // Implement these methods based on your specific validation requirements
+    private boolean isPatientDataNotEmpty(SignupRequestPatient patient) {
+        return patient.getUsername() != null && !patient.getUsername().isEmpty() && !patient.getUsername().equals("string")
+                && patient.getEmail() != null && !patient.getEmail().isEmpty() && !patient.getEmail().equals("string")
+                && patient.getPassword() != null && !patient.getPassword().isEmpty() && !patient.getPassword().equals("string")
+                // Add other necessary checks if any
+                ;
+    }
+
+    private boolean isPharmacistDataNotEmpty(SignupRequestPharmacist pharmacist) {
+        return pharmacist.getUsername() != null && !pharmacist.getUsername().isEmpty() && !pharmacist.getUsername().equals("string")
+                && pharmacist.getEmail() != null && !pharmacist.getEmail().isEmpty() && !pharmacist.getEmail().equals("string")
+                && pharmacist.getPassword() != null && !pharmacist.getPassword().isEmpty() && !pharmacist.getPassword().equals("string")
+                // Add other necessary checks if any
+                ;
+    }
 
     @Override
     public boolean existsByUsername(String username) {

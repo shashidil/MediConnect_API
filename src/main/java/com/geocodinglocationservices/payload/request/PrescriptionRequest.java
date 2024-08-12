@@ -9,6 +9,5 @@ import lombok.*;
 @Setter
 public class PrescriptionRequest {
     private String medicationName;
-    private String medicationDosage;
     private int medicationQuantity;
 }

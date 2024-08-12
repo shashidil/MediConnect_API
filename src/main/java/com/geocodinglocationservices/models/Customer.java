@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,11 +30,11 @@ public class Customer extends User {
     @Size(max = 100, message = "Pharmacy location can have a maximum of 100 characters")
     private String addressLine1;
 
-    @NotEmpty(message = "User location is required")
+    @NotEmpty(message = "User city is required")
     @Size(max = 100, message = "Pharmacy location can have a maximum of 100 characters")
     private String city;
 
-    @NotEmpty(message = "User location is required")
+    @NotEmpty(message = "User states is required")
     @Size(max = 100, message = "Pharmacy location can have a maximum of 100 characters")
     private String states;
 
@@ -42,6 +44,13 @@ public class Customer extends User {
 
     private Double latitude;
     private Double longitude;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MedicineInvoice> invoices;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
+
 //    private Set<Role> role;
 
 //    @OneToOne(cascade = CascadeType.ALL)

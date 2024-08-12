@@ -7,6 +7,7 @@ import com.geocodinglocationservices.models.Pharmacist;
 import com.geocodinglocationservices.models.Prescription;
 import com.geocodinglocationservices.payload.request.InvoiceRequest;
 import com.geocodinglocationservices.payload.response.InvoiceResponse;
+import com.geocodinglocationservices.payload.response.MedicationResponse;
 import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.InvoiceRepository;
 import com.geocodinglocationservices.repository.PharmacistRepo;
@@ -14,13 +15,14 @@ import com.geocodinglocationservices.repository.PrescriptionRepo;
 import com.geocodinglocationservices.utill.GeocodingDistance;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -36,40 +38,96 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private ModelMapper modelMapper = new ModelMapper();
 
-    @Override
-    public InvoiceRequest createInvoice(InvoiceRequest invoice) {
-        Prescription prescriptionById = prescriptionRepo.findById(invoice.getPrescriptionId()).orElseThrow(() -> new EntityNotFoundException("Prescription not found"));
-        MedicineInvoice medicineInvoice = modelMapper.map(invoice, MedicineInvoice.class);
-        medicineInvoice.setPatientName(prescriptionById.getUser().getUsername());
-        return modelMapper.map(invoiceRepository.save(medicineInvoice), InvoiceRequest.class);
+    public InvoiceServiceImpl() {
+      //  configureModelMapper();
+    }
+
+    private void configureModelMapper() {
+        modelMapper.addMappings(new PropertyMap<InvoiceRequest, MedicineInvoice>() {
+            @Override
+            protected void configure() {
+                // Explicitly map properties
+                map().setMedicationName(source.getMedications().get(0).getMedicationName());
+                map().setMedicationDosage(source.getMedications().get(1).getMedicationDosage());
+                map().setMedicationQuantity(source.getMedications().get(2).getMedicationQuantity());
+                map().setAmount(source.getMedications().get(3).getAmount());
+               // map().setAdditionalNotes(source.getMedications().get().get);
+                // Ignore the ID mapping
+                skip(destination.getId());
+            }
+        });
     }
 
     @Override
-    public InvoiceResponse getInvoiceForCustomer(Long invoiceId, Long customerId) throws Exception {
+    public InvoiceRequest createInvoice(InvoiceRequest invoice) {
+        Prescription prescriptionById = prescriptionRepo.findById(invoice.getPrescriptionId())
+                .orElseThrow(() -> new EntityNotFoundException("Prescription not found"));
+        Pharmacist pharmacist = pharmacistRepo.findById(invoice.getPharmacistId())
+                .orElseThrow(() -> new UsernameNotFoundException("Pharmacist Not Found"));
+        Customer customer = customerRepo.findById(prescriptionById.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("Customer Not Found"));
 
-        MedicineInvoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
-
-        Prescription prescription = invoice.getPrescription();
-
-        if (prescription.getUser().getId().equals(customerId)) {
-            Long pharmacistId = invoice.getPharmacist().getId();
-            List<Pharmacist> authorizedPharmacists = prescription.getPharmacists();
-
-            boolean isPharmacistAuthorized = authorizedPharmacists.stream()
-                    .anyMatch(pharmacist -> pharmacist.getId().equals(pharmacistId));
-
-            Customer existCustomer = customerRepo.findById(customerId).orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
-            Pharmacist existPharmacist = pharmacistRepo.findById(pharmacistId).orElseThrow(() -> new UsernameNotFoundException("Pharmacist not found"));
-            double distance = GeocodingDistance.getDistance(existCustomer.getLatitude(), existCustomer.getLongitude(), existPharmacist.getLatitude(), existPharmacist.getLongitude());
-            //distance add
-            if (isPharmacistAuthorized) {
-                return modelMapper.map(invoice, InvoiceResponse.class);
-            } else {
-                throw new AccessDeniedException("The pharmacist is not authorized to access this invoice.");
-            }
-        } else {
-            throw new AccessDeniedException("This prescription does not belong to the customer.");
+        // Iterate over each medication and create an invoice entry
+        for (InvoiceRequest.Medication medication : invoice.getMedications()) {
+            MedicineInvoice medicineInvoice = new MedicineInvoice();
+            medicineInvoice.setPrescription(prescriptionById);
+            medicineInvoice.setInvoiceNumber(invoice.getInvoiceNumber());
+            medicineInvoice.setPharmacist(pharmacist);
+            medicineInvoice.setCustomer(customer);
+            medicineInvoice.setPatientName(prescriptionById.getUser().getUsername());
+            medicineInvoice.setMedicationName(medication.getMedicationName());
+            medicineInvoice.setMedicationDosage(medication.getMedicationDosage());
+            medicineInvoice.setMedicationQuantity(medication.getMedicationQuantity());
+            medicineInvoice.setAmount(medication.getAmount());
+            medicineInvoice.setTotal(invoice.getTotalAmount());
+            // Save each MedicineInvoice
+            invoiceRepository.save(medicineInvoice);
         }
+
+        return invoice;
+    }
+
+    @Override
+    public List<InvoiceResponse> getInvoiceForCustomer(Long customerId) throws Exception {
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
+
+        List<MedicineInvoice> invoices = invoiceRepository.findByCustomer(customer);
+        Map<Long, InvoiceResponse> invoiceMap = new HashMap<>();
+
+        for (MedicineInvoice invoice : invoices) {
+            Long prescriptionId = invoice.getPrescription().getId();
+            InvoiceResponse invoiceResponse = invoiceMap.get(prescriptionId);
+
+            if (invoiceResponse == null) {
+                invoiceResponse = new InvoiceResponse();
+                invoiceResponse.setPharmacistName(invoice.getPharmacist().getPharmacyName());
+                invoiceResponse.setAdditionalNotes(invoice.getAdditionalNotes());
+                invoiceResponse.setDistance(GeocodingDistance.getDistance(
+                        customer.getLatitude(), customer.getLongitude(),
+                        invoice.getPharmacist().getLatitude(), invoice.getPharmacist().getLongitude()));
+                invoiceResponse.setInvoiceNumber(invoice.getInvoiceNumber());
+                invoiceResponse.setTotal(invoice.getTotal());
+                invoiceResponse.setPharmacistId(invoice.getPharmacist().getId());
+                invoiceResponse.setCustomerLatitude(customer.getLatitude());
+                invoiceResponse.setCustomerLongitude(customer.getLongitude());
+                invoiceResponse.setPharmacistLatitude(invoice.getPharmacist().getLatitude());
+                invoiceResponse.setPharmacistLongitude(invoice.getPharmacist().getLongitude());
+                invoiceResponse.setMedications(new ArrayList<>());
+
+                invoiceMap.put(prescriptionId, invoiceResponse);
+            }
+
+            MedicationResponse medicationResponse = new MedicationResponse();
+            medicationResponse.setMedicationName(invoice.getMedicationName());
+            medicationResponse.setMedicationDosage(invoice.getMedicationDosage());
+            medicationResponse.setMedicationQuantity(invoice.getMedicationQuantity());
+            medicationResponse.setAmount(invoice.getAmount());
+
+
+            invoiceResponse.getMedications().add(medicationResponse);
+        }
+
+        return new ArrayList<>(invoiceMap.values());
     }
 }
