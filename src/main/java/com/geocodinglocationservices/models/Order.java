@@ -33,12 +33,16 @@ public class Order {
     @Column(nullable = false)
     private String paymentIntentId;
 
+    @Column(nullable = false)
+    private String orderStatus = "Awaiting Shipment"; // Default value
 
     @Column(nullable = false)
     private String paymentStatus; // e.g., "Pending", "Completed", "Failed"
 
     @Column(nullable = false)
     private Double totalAmount;
+
+    private String trackingNumber;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

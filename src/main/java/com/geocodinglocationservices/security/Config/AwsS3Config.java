@@ -1,4 +1,4 @@
-package com.geocodinglocationservices.security;
+package com.geocodinglocationservices.security.Config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

@@ -28,4 +28,10 @@ public class InvoiceController {
         List<InvoiceResponse> invoices = invoiceService.getInvoiceForCustomer(customerId);
         return ResponseEntity.ok(invoices);
     }
+
+    @GetMapping("/number/{invoiceNumber}")
+    public ResponseEntity<List<InvoiceResponse>> getInvoicesByInvoiceNumber(@PathVariable String invoiceNumber) throws Exception {
+        List<InvoiceResponse> invoices = invoiceService.getInvoicesByInvoiceNumber(invoiceNumber);
+        return ResponseEntity.ok(invoices);
+    }
 }

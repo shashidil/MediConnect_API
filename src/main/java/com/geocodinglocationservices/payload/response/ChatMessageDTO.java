@@ -5,14 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
+import java.sql.Timestamp;
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class ChatMessageDTO {
     private Long id;
-    private String name;
-    private String email;
+    private String content;
+    private UserDTO sender;
+    private UserDTO receiver;
+    private Timestamp timestamp;
 }

@@ -8,14 +8,17 @@ import com.geocodinglocationservices.models.Prescription;
 import com.geocodinglocationservices.payload.request.InvoiceRequest;
 import com.geocodinglocationservices.payload.response.InvoiceResponse;
 import com.geocodinglocationservices.payload.response.MedicationResponse;
+import com.geocodinglocationservices.payload.response.OrderResponse;
 import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.InvoiceRepository;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.geocodinglocationservices.repository.PrescriptionRepo;
 import com.geocodinglocationservices.utill.GeocodingDistance;
+import com.stripe.model.Invoice;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -128,6 +131,49 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceResponse.getMedications().add(medicationResponse);
         }
 
+        return new ArrayList<>(invoiceMap.values());
+    }
+
+    @Override
+    public List<InvoiceResponse> getInvoicesByInvoiceNumber(String invoiceNumber) {
+        // Fetch all MedicineInvoices with the given invoiceNumber
+        List<MedicineInvoice> medicineInvoices = invoiceRepository.findByinvoiceNumber(invoiceNumber);
+
+        // Create a map to aggregate the results
+        Map<String, InvoiceResponse> invoiceMap = new HashMap<>();
+
+        for (MedicineInvoice invoice : medicineInvoices) {
+            // Create or update the InvoiceResponse in the map
+            InvoiceResponse invoiceResponse = invoiceMap.computeIfAbsent(invoice.getInvoiceNumber(), key -> {
+                InvoiceResponse response = new InvoiceResponse();
+                response.setPharmacistName(invoice.getPharmacist().getPharmacyName()); // Assuming you have a method to get the name
+                response.setInvoiceNumber(invoice.getInvoiceNumber());
+                response.setTotal(invoice.getTotal());
+                response.setAdditionalNotes(invoice.getAdditionalNotes());
+                response.setDistance(0.0); // Or calculate the distance if needed
+                response.setPharmacistId(invoice.getPharmacist().getId());
+                response.setPharmacistLatitude(invoice.getPharmacist().getLatitude());
+                response.setPharmacistLongitude(invoice.getPharmacist().getLongitude());
+                response.setCustomerLatitude(invoice.getCustomer().getLatitude());
+                response.setCustomerLongitude(invoice.getCustomer().getLongitude());
+                return response;
+            });
+
+            // Add medication to the list
+            MedicationResponse medicationResponse = new MedicationResponse();
+            medicationResponse.setMedicationName(invoice.getMedicationName());
+            medicationResponse.setMedicationDosage(invoice.getMedicationDosage());
+            medicationResponse.setMedicationQuantity(invoice.getMedicationQuantity());
+            medicationResponse.setAmount(invoice.getAmount());
+
+            // Initialize the medications list if it doesn't exist
+            if (invoiceResponse.getMedications() == null) {
+                invoiceResponse.setMedications(new ArrayList<>());
+            }
+            invoiceResponse.getMedications().add(medicationResponse);
+        }
+
+        // Return the combined list
         return new ArrayList<>(invoiceMap.values());
     }
 }

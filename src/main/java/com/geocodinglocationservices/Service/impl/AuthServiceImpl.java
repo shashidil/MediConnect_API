@@ -5,6 +5,7 @@ import com.geocodinglocationservices.models.*;
 import com.geocodinglocationservices.payload.request.SignupRequest;
 import com.geocodinglocationservices.payload.request.SignupRequestPatient;
 import com.geocodinglocationservices.payload.request.SignupRequestPharmacist;
+import com.geocodinglocationservices.payload.response.UserDTO;
 import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.geocodinglocationservices.repository.RoleRepository;
@@ -12,12 +13,14 @@ import com.geocodinglocationservices.repository.UserRepository;
 import com.geocodinglocationservices.utill.GeocodingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -192,4 +195,11 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    @Override
+    public List<UserDTO> findDistinctChatUsers(Long userId) {
+        return null;
+    }
+
+
 }

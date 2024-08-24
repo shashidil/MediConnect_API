@@ -1,5 +1,6 @@
 package com.geocodinglocationservices.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -52,5 +53,9 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Prescription> prescriptions = new ArrayList<>();
 
+  @OneToMany(mappedBy = "sender")
+  private Set<ChatMessage> sentMessages;
 
+  @OneToMany(mappedBy = "receiver")
+  private Set<ChatMessage> receivedMessages;
 }

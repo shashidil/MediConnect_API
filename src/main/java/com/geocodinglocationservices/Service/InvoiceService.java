@@ -12,4 +12,6 @@ public interface InvoiceService {
 
 
     List<InvoiceResponse> getInvoiceForCustomer(Long customerId) throws Exception;
+
+    List<InvoiceResponse> getInvoicesByInvoiceNumber(String invoiceNumber);
 }
