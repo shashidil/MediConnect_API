@@ -52,6 +52,7 @@ public class WebSecurityConfig {
           "/api/reports/**",
           "/api/inquiries/**",
           "/api/test/**",
+          "/api/pharmacist-account/**"
 
 
   };

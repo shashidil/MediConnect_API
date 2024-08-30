@@ -23,7 +23,7 @@ public interface AuthService {
 
     User updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException;
 
-    public void handleNotificationInLogin(Long userId);
+    void handleNotificationInLogin(Long userId);
 
     UserDetailsDto getUserDetails(Long userId);
 }

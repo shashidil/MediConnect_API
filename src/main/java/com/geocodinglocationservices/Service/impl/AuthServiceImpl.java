@@ -260,6 +260,7 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
     public void handleNotificationInLogin(Long userId) {
         if (reminderService.shouldNotifyUser(userId)) {
             // Create and send the notification
+            System.out.println(reminderService.shouldNotifyUser(userId));
             NotificationMessage message = new NotificationMessage();
             message.setMessage("It's time to reorder your medication!");
             message.setReminderTime(LocalDateTime.now());

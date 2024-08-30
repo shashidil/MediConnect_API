@@ -12,7 +12,7 @@ public class PharmacistAccountController {
     @Autowired
     private PharmacistAccountService pharmacistAccountService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public PharmacistAccount createAccount(@RequestParam String email, @RequestParam Long pharmacistId) {
         return pharmacistAccountService.createAccount(email, pharmacistId);
     }

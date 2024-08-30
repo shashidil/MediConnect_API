@@ -63,8 +63,8 @@ public class AuthController {
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
 
-//    Long userId = userDetails.getId();  // Get the user ID from the authenticated user
-//    authService.handleNotificationInLogin(userId);
+    Long userId = userDetails.getId();  // Get the user ID from the authenticated user
+    authService.handleNotificationInLogin(userId);
 
     return ResponseEntity.ok(new JwtResponse(jwt,
             userDetails.getId(),
