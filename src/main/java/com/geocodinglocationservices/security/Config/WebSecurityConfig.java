@@ -36,9 +36,6 @@ public class WebSecurityConfig {
   @Autowired
   UserDetailsServiceImpl userDetailsService;
 
-  @Autowired
-  private AuthEntryPointJwt unauthorizedHandler;
-
   @Bean
   public AuthTokenFilter authenticationJwtTokenFilter() {
     return new AuthTokenFilter();
@@ -52,7 +49,9 @@ public class WebSecurityConfig {
           "/api/pharmacist-account/**",
           "/api/orders/**",
           "/api/chats/**",
-
+          "/api/reports/**",
+          "/api/inquiries/**",
+          "/api/test/**",
 
 
   };
@@ -84,8 +83,7 @@ public class WebSecurityConfig {
 
 CorsConfigurationSource apiConfigurationSource() {
   CorsConfiguration configuration = new CorsConfiguration();
-  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-  //configuration.addAllowedOriginPattern("*");
+  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:53562"));
   configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
   configuration.addAllowedHeader("*");
   configuration.setAllowCredentials(true);

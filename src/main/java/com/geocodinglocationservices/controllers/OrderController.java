@@ -27,16 +27,15 @@ public class OrderController {
         PaymentIntent paymentIntent = orderService.createPaymentIntent(amount);
         return ResponseEntity.ok(paymentIntent);
     }
-
     @PostMapping("/process-payment")
     public ResponseEntity<OrderResponse> processPayment(
-            @RequestParam String invoiceId,
+            @RequestParam Long Id,
             @RequestParam String orderNumber,
             @RequestParam Long pharmacistId,
             @RequestParam Long customerId,
             @RequestParam String paymentMethod,
             @RequestParam Double amount) {
-        OrderResponse order = orderService.processPayment(invoiceId,orderNumber, pharmacistId, customerId, paymentMethod, amount);
+        OrderResponse order = orderService.processPayment(Id,orderNumber, pharmacistId, customerId, paymentMethod, amount);
         return ResponseEntity.ok(order);
     }
 
@@ -50,7 +49,7 @@ public class OrderController {
 
     @PutMapping("/update/{orderId}")
     public ResponseEntity<OrderResponse> updateOrderStatus(
-            @PathVariable String orderId,
+            @PathVariable Long orderId,
             @Valid @RequestBody UpdateOrderRequest updateRequest) {
         OrderResponse updatedOrder = orderService.updateOrderStatus(orderId, updateRequest);
         return ResponseEntity.ok(updatedOrder);

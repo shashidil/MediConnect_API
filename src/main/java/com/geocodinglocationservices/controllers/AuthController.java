@@ -2,15 +2,13 @@ package com.geocodinglocationservices.controllers;
 
 import com.geocodinglocationservices.Service.AuthService;
 import com.geocodinglocationservices.models.User;
-import com.geocodinglocationservices.payload.request.LoginRequest;
-import com.geocodinglocationservices.payload.request.SignupRequest;
-import com.geocodinglocationservices.payload.request.SignupRequestPatient;
-import com.geocodinglocationservices.payload.request.SignupRequestPharmacist;
+import com.geocodinglocationservices.payload.request.*;
 import com.geocodinglocationservices.payload.response.JwtResponse;
 import com.geocodinglocationservices.payload.response.MessageResponse;
 import com.geocodinglocationservices.repository.RoleRepository;
 import com.geocodinglocationservices.repository.UserRepository;
 import com.geocodinglocationservices.security.jwt.JwtUtils;
+import com.geocodinglocationservices.security.services.ReminderService;
 import com.geocodinglocationservices.security.services.UserDetailsImpl;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
@@ -46,6 +44,8 @@ public class AuthController {
   JwtUtils jwtUtils;
   @Autowired
   private AuthService authService;
+  @Autowired
+  private ReminderService reminderService;
 
 
   @PostMapping("/signin")
@@ -62,60 +62,78 @@ public class AuthController {
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
 
+    Long userId = userDetails.getId();  // Get the user ID from the authenticated user
+    authService.handleNotificationInLogin(userId);
+
     return ResponseEntity.ok(new JwtResponse(jwt,
             userDetails.getId(),
             userDetails.getUsername(),
             userDetails.getEmail(),
             roles));
   }
-
-    @GetMapping("/hello") // This maps the /hello path to this method
-    public String helloWorld() {
-      return "Hello World"; // Return the "Hello World" string
-    }
-
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws IOException {
     String username = null;
     String email = null;
-    if (signUpRequest.getSignupRequestPatient() != null && isPatientDataNotEmpty(signUpRequest.getSignupRequestPatient())){
+
+    // Check if the patient data is not empty
+    if (signUpRequest.getSignupRequestPatient() != null && isPatientDataNotEmpty(signUpRequest.getSignupRequestPatient())) {
       SignupRequestPatient patient = signUpRequest.getSignupRequestPatient();
       username = patient.getUsername();
       email = patient.getEmail();
-    }else if (signUpRequest.getSignupRequestPharmacist() != null && isPharmacistDataNotEmpty(signUpRequest.getSignupRequestPharmacist())) {
+    }
+    // Check if the pharmacist data is not empty
+    else if (signUpRequest.getSignupRequestPharmacist() != null && isPharmacistDataNotEmpty(signUpRequest.getSignupRequestPharmacist())) {
       SignupRequestPharmacist pharmacist = signUpRequest.getSignupRequestPharmacist();
       username = pharmacist.getUsername();
       email = pharmacist.getEmail();
     }
+    // If both are empty, return an error
     else {
       return ResponseEntity
               .badRequest()
-              .body(new MessageResponse("Error: Request are Empty!"));
+              .body(new MessageResponse("Error: Request data is empty!"));
     }
+
+    // Validate if the username already exists
     if (authService.existsByUsername(username)) {
       return ResponseEntity
               .badRequest()
               .body(new MessageResponse("Error: Username is already taken!"));
     }
 
+    // Validate if the email already exists
     if (authService.existsByEmail(email)) {
       return ResponseEntity
               .badRequest()
               .body(new MessageResponse("Error: Email is already in use!"));
     }
+
+    // Register the user
     User registeredUser = authService.registerUser(signUpRequest);
-    if (registeredUser == null){
+    if (registeredUser == null) {
       return ResponseEntity.badRequest().build();
     }
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+  }
 
+
+  @PutMapping("/{userId}")
+  public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequest updateRequest) {
+    try {
+      User updatedUser = authService.updateUser(userId, updateRequest);
+      return ResponseEntity.ok(updatedUser);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("Error updating user: " + e.getMessage());
+    }
   }
 
   private boolean isPatientDataNotEmpty(SignupRequestPatient patient) {
-    return !StringUtils.isBlank(patient.getUsername()) && !StringUtils.isBlank(patient.getEmail());
+    return patient != null && !StringUtils.isBlank(patient.getUsername()) && !StringUtils.isBlank(patient.getEmail());
   }
 
+  // Helper method to check if pharmacist data is not empty
   private boolean isPharmacistDataNotEmpty(SignupRequestPharmacist pharmacist) {
-    return !StringUtils.isBlank(pharmacist.getUsername()) && !StringUtils.isBlank(pharmacist.getEmail());
+    return pharmacist != null && !StringUtils.isBlank(pharmacist.getUsername()) && !StringUtils.isBlank(pharmacist.getEmail());
   }
 }

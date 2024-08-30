@@ -2,6 +2,7 @@ package com.geocodinglocationservices.Service;
 
 import com.geocodinglocationservices.models.User;
 import com.geocodinglocationservices.payload.request.SignupRequest;
+import com.geocodinglocationservices.payload.request.UserUpdateRequest;
 import com.geocodinglocationservices.payload.response.UserDTO;
 import org.springframework.stereotype.Service;
 
@@ -18,4 +19,8 @@ public interface AuthService {
 
 
     List<UserDTO> findDistinctChatUsers(Long userId);
+
+    User updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException;
+
+    public void handleNotificationInLogin(Long userId);
 }

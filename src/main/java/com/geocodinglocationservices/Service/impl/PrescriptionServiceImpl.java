@@ -69,11 +69,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public Prescription storeFile(MultipartFile file, Long userId, PharmacistIdRequest pharmacistIdRequest) {
-        //String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileName = String.format("%s", file.getOriginalFilename());
 
         try {
-            // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
             }
@@ -81,30 +79,16 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             if (file.isEmpty())
                 throw new IllegalStateException("Cannot upload empty file");
             String path = String.format("%s/%s", bucketName, UUID.randomUUID());
-           // String path = String.format("mediconnectimg/%s", UUID.randomUUID().toString());
-
-            System.out.println(path);
 
             Map<String, String> metadata = new HashMap<>();
             metadata.put("Content-Type", file.getContentType());
             metadata.put("Content-Length", String.valueOf(file.getSize()));
-            // Generate a unique file name
-           /// String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
-
-            // Upload file to S3
-           // amazonS3.putObject(new PutObjectRequest(bucketName, fileName, file.getInputStream(), null));
-
             amazonS3Service.upload(
                     path, fileName, Optional.of(metadata), file.getInputStream());
-
-            // Retrieve user from the repository
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-
-            // Save prescription details
             Prescription prescription = new Prescription();
             prescription.setFileName(fileName);
-            //prescription.setFilePath(bucketName + "/" + fileName);
             prescription.setFilePath(path);
             prescription.setUser(user);
             prescription.setPharmacists(pharmacistIdRequest.getPharmacistId()

@@ -5,11 +5,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONObject;
 public class GeocodingDistance {
-
         private static final String ACCESS_TOKEN = "pk.eyJ1IjoiZGlsLTk4IiwiYSI6ImNscGZzNnhnczFxdWIyanJsMmlteHBxMTUifQ.-rF5zeoc-8qmqrKMbjVaYA";
         private static final OkHttpClient httpClient = new OkHttpClient();
         private static final double MAX_DISTANCE_KM = 2000;
-
     public static double getDistance(double startLat, double startLng, double endLat, double endLng) throws Exception {
         double distance = calculateDistanceInKm(startLat, startLng, endLat, endLng);
         if (distance > MAX_DISTANCE_KM) {

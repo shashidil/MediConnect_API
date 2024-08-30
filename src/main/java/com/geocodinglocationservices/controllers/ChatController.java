@@ -31,19 +31,15 @@ public class ChatController {
     @MessageMapping("/chat.sendMessage")
     @SendToUser("/queue/private-messages")
     public ChatMessageDTO sendMessage(ChatRequest chatMessage, Principal principal) {
-        ChatMessage saveChat = chatMessageService.saveChat(chatMessage);// Save the message to the database
-// Optionally check if the receiver is online and send a notification
+        ChatMessage saveChat = chatMessageService.saveChat(chatMessage);
         return chatMessageService.convertToDTO(saveChat);
     }
 
     @MessageMapping("/chat.addUser")
     @SendTo("/topic/public")
     public ChatMessage addUser(ChatMessage chatMessage, Principal principal) {
-        // Handle user joining a chat
         return chatMessage;
     }
-
-    // REST API to retrieve messages between two users
     @GetMapping("/api/chats/messages")
     public ResponseEntity<List<ChatMessageDTO>> getMessages(
             @RequestParam Long senderId,
@@ -52,7 +48,6 @@ public class ChatController {
         return ResponseEntity.ok(chatMessages);
 
     }
-    // REST API to get the list of active chats for a user
     @GetMapping("/api/chats")
     public List<UserDTO> getChatList(@RequestParam Long userId) {
         return chatMessageService.findDistinctChatUsers(userId);

@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface OrderService {
 
-    OrderResponse processPayment(String invoiceId,String orderNumber, Long pharmacistId, Long customerId, String paymentMethod, Double amount);
+    OrderResponse processPayment(Long invoiceId,String orderNumber, Long pharmacistId, Long customerId, String paymentMethod, Double amount);
 
     PaymentIntent createPaymentIntent(int amount) throws StripeException;
 
     List<OrderResponse> getOrders(Long customerId,Long pharmacistId);
 
-    OrderResponse updateOrderStatus(String orderId, UpdateOrderRequest updateRequest);
+    OrderResponse updateOrderStatus(Long orderId, UpdateOrderRequest updateRequest);
 }

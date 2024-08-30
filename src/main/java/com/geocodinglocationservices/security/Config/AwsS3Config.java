@@ -8,8 +8,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-
 @Configuration
 public class AwsS3Config {
     @Value("${aws.access_key_id}")
@@ -23,7 +21,6 @@ public class AwsS3Config {
 
     @Value("${aws.s3.bucket_name}")
     private String bucketName;
-
     @Bean
     public AmazonS3 amazonS3() {
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
@@ -32,7 +29,6 @@ public class AwsS3Config {
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .build();
     }
-
     @Bean
     public String bucketName() {
         return bucketName;

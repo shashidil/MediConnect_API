@@ -42,11 +42,11 @@ public class OrderServiceImpl implements OrderService {
     private ModelMapper modelMapper = new ModelMapper();
 
     @Override
-    public OrderResponse processPayment(String invoiceId, String orderNumber,Long pharmacistId, Long customerId, String paymentMethod, Double amount) {
+    public OrderResponse processPayment(Long invoiceId, String orderNumber,Long pharmacistId, Long customerId, String paymentMethod, Double amount) {
         Stripe.apiKey = apiKey;
 
-        List<MedicineInvoice> invoice = invoiceRepository.findAllByinvoiceNumber(invoiceId);
-        if (invoice.isEmpty()) throw new EntityNotFoundException("Invoice not found");
+        MedicineInvoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new UsernameNotFoundException("Invoice not found"));
         Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
         Pharmacist pharmacist = pharmacistRepo.findById(pharmacistId)
@@ -55,12 +55,12 @@ public class OrderServiceImpl implements OrderService {
         /*PharmacistAccount pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId)
                 .orElseThrow(() -> new UsernameNotFoundException("Pharmacist stripe account not found"));*/
 
-        // Create and save the Order before processing payment
         Order order = new Order();
-        order.setInvoiceNumber(invoiceId);
+        order.setInvoiceNumber(invoice.getInvoiceNumber());
         order.setOrderNumber(orderNumber);
         order.setCustomer(customer);
         order.setPharmacist(pharmacist);
+        order.setInvoice(invoice);
         order.setPaymentMethod(paymentMethod);
         order.setPaymentStatus("Pending");
         order.setOrderStatus("Awaiting Shipment"); // Default status
@@ -112,24 +112,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrders(Long customerId,Long pharmacistId) {
-        List<Order> byCustomerId = new ArrayList<>();
+        List<Order> orderById = new ArrayList<>();
         if (customerId != null) {
             Customer customer = customerRepo.findById(customerId)
                     .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
-            byCustomerId = orderRepo.findByCustomerId(customerId);
+            orderById = orderRepo.findByCustomerId(customerId);
         }else if (pharmacistId != null) {
             Pharmacist pharmacist= pharmacistRepo.findById(pharmacistId)
                     .orElseThrow(() -> new UsernameNotFoundException("Pharmacist not found"));
-            byCustomerId= orderRepo.findByPharmacistId(pharmacistId);
+            orderById= orderRepo.findByPharmacistId(pharmacistId);
         } else {
             throw new IllegalArgumentException("Either customerId or pharmacistId must be provided");
         }
-        return modelMapper.map(byCustomerId, new TypeToken<List<OrderResponse>>(){}.getType());
+
+
+        return modelMapper.map(orderById, new TypeToken<List<OrderResponse>>(){}.getType());
     }
 
     @Override
-    public OrderResponse updateOrderStatus(String orderId, UpdateOrderRequest updateRequest) {
-        Order order = orderRepo.findByorderNumber(orderId)
+    public OrderResponse updateOrderStatus(Long orderId, UpdateOrderRequest updateRequest) {
+        Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
         if (updateRequest.getStatus() != null && !updateRequest.getStatus().isEmpty()){

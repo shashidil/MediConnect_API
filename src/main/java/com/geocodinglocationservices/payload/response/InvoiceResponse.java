@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class InvoiceResponse {
+    private long id;
     private String pharmacistName;
     private String invoiceNumber;
     private List<MedicationResponse> medications;

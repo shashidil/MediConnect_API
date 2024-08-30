@@ -24,28 +24,18 @@ import java.util.List;
 public class MedicineRequestController {
 
     @Autowired
-    private MedicineRequestService medicineRequest;
-
-    @Autowired
     private PrescriptionService prescriptionService;
-
-
-   // @PreAuthorize("hasRole('ROLE_CUSTOMER')")
    @PostMapping("/uploadPrescription/{id}")
    public ResponseEntity<String> uploadFile(
            @RequestParam("file") MultipartFile file,
            @PathVariable("id") Long userId,
            @RequestParam("pharmacistIds") String pharmacistIdsJson) {
        try {
-
-           // Parse pharmacist IDs
            ObjectMapper objectMapper = new ObjectMapper();
            List<Long> pharmacistIds = objectMapper.readValue(pharmacistIdsJson, new TypeReference<List<Long>>() {});
-
            PharmacistIdRequest pharmacistIdRequest = new PharmacistIdRequest();
            pharmacistIdRequest.setPharmacistId(pharmacistIds);
 
-           // Store the file
            Prescription prescription = prescriptionService.storeFile(file, userId, pharmacistIdRequest);
            return ResponseEntity.ok("File uploaded successfully");
        } catch (Exception e) {
@@ -56,7 +46,8 @@ public class MedicineRequestController {
    }
 
     @PostMapping("/uploadMedicine/{id}")
-    public ResponseEntity<String> uploadMedicine(@PathVariable("id")User userId,@RequestBody PrescriptionRequest prescriptionRequest, @Valid @RequestBody PharmacistIdRequest pharmacistIdRequest) {
+    public ResponseEntity<String> uploadMedicine(@PathVariable("id")User userId,@RequestBody PrescriptionRequest prescriptionRequest,
+                                                 @Valid @RequestBody PharmacistIdRequest pharmacistIdRequest) {
         Prescription prescription = prescriptionService.storeMedicine(userId,prescriptionRequest,pharmacistIdRequest);
         return ResponseEntity.ok("Medicine uploaded successfully: ");
     }

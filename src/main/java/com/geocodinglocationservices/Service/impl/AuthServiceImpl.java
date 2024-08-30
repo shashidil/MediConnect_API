@@ -1,15 +1,19 @@
 package com.geocodinglocationservices.Service.impl;
 
 import com.geocodinglocationservices.Service.AuthService;
+import com.geocodinglocationservices.controllers.NotificationController;
 import com.geocodinglocationservices.models.*;
 import com.geocodinglocationservices.payload.request.SignupRequest;
 import com.geocodinglocationservices.payload.request.SignupRequestPatient;
 import com.geocodinglocationservices.payload.request.SignupRequestPharmacist;
+import com.geocodinglocationservices.payload.request.UserUpdateRequest;
+import com.geocodinglocationservices.payload.response.NotificationMessage;
 import com.geocodinglocationservices.payload.response.UserDTO;
 import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.geocodinglocationservices.repository.RoleRepository;
 import com.geocodinglocationservices.repository.UserRepository;
+import com.geocodinglocationservices.security.services.ReminderService;
 import com.geocodinglocationservices.utill.GeocodingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +42,11 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    ReminderService reminderService;
+    @Autowired
+    NotificationController notificationController;
+
     private ModelMapper modelMapper = new ModelMapper();
 
 
@@ -52,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
             strRoles = pharmacist.getRole();
         } else {
             // Handle the case where neither patient nor pharmacist role is provided
-            throw new RuntimeException("Error: Role is not provided!");
+            throw new RuntimeException("Error: Role 1 is not provided!");
         }
 
 //        if (signUpRequest.getSignupRequestPatient() != null&& isPatientDataNotEmpty(signUpRequest.getSignupRequestPatient())){
@@ -153,13 +163,6 @@ public class AuthServiceImpl implements AuthService {
 
 
     }
-//    private boolean isPatientDataNotEmpty(SignupRequestPatient patient) {
-//        return !StringUtils.isBlank(patient.getUsername()) && !StringUtils.isBlank(patient.getEmail());
-//    }
-//
-//    private boolean isPharmacistDataNotEmpty(SignupRequestPharmacist pharmacist) {
-//        return !StringUtils.isBlank(pharmacist.getUsername()) && !StringUtils.isBlank(pharmacist.getEmail());
-//    }
 private boolean isPatientDataValid(SignupRequest signUpRequest) {
     SignupRequestPatient patient = signUpRequest.getSignupRequestPatient();
     return patient != null && isPatientDataNotEmpty(patient);
@@ -174,7 +177,7 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
         return patient.getUsername() != null && !patient.getUsername().isEmpty() && !patient.getUsername().equals("string")
                 && patient.getEmail() != null && !patient.getEmail().isEmpty() && !patient.getEmail().equals("string")
                 && patient.getPassword() != null && !patient.getPassword().isEmpty() && !patient.getPassword().equals("string")
-                // Add other necessary checks if any
+
                 ;
     }
 
@@ -182,7 +185,7 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
         return pharmacist.getUsername() != null && !pharmacist.getUsername().isEmpty() && !pharmacist.getUsername().equals("string")
                 && pharmacist.getEmail() != null && !pharmacist.getEmail().isEmpty() && !pharmacist.getEmail().equals("string")
                 && pharmacist.getPassword() != null && !pharmacist.getPassword().isEmpty() && !pharmacist.getPassword().equals("string")
-                // Add other necessary checks if any
+
                 ;
     }
 
@@ -201,5 +204,74 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
         return null;
     }
 
+    @Override
+    public User updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException {
+        String fullAddress;
+        GeocodingService.LatLng coordinates;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        fullAddress = String.format("%s, %s, %s",
+                updateRequest.getAddressLine1(),
+                updateRequest.getCity(),
+                updateRequest.getStates());
+        coordinates = GeocodingService.getCoordinates(fullAddress);
+
+        if (coordinates != null) {
+            updateRequest.setLatitude(coordinates.latitude);
+            updateRequest.setLongitude(coordinates.longitude);
+        }
+        user.setUsername(updateRequest.getUsername());
+        user.setEmail(updateRequest.getEmail());
+        if (updateRequest.getPassword() != null) {
+            user.setPassword(updateRequest.getPassword());
+        }
+        if (user instanceof Customer) {
+            Customer customer = (Customer) user;
+            customer.setFirstName(updateRequest.getFirstName());
+            customer.setLastName(updateRequest.getLastName());
+            customer.setPhoneNumber(updateRequest.getPhoneNumber());
+            customer.setAddressLine1(updateRequest.getAddressLine1());
+            customer.setCity(updateRequest.getCity());
+            customer.setStates(updateRequest.getStates());
+            customer.setPostalCode(updateRequest.getPostalCode());
+            customer.setLatitude(updateRequest.getLatitude());
+            customer.setLongitude(updateRequest.getLongitude());
+
+            return customerRepo.save(customer);
+        } else if (user instanceof Pharmacist) {
+            Pharmacist pharmacist = (Pharmacist) user;
+            pharmacist.setPharmacyName(updateRequest.getPharmacyName());
+            pharmacist.setAddressLine1(updateRequest.getAddressLine1());
+            pharmacist.setCity(updateRequest.getCity());
+            pharmacist.setStates(updateRequest.getStates());
+            pharmacist.setPostalCode(updateRequest.getPostalCode());
+            pharmacist.setLatitude(updateRequest.getLatitude());
+            pharmacist.setLongitude(updateRequest.getLongitude());
+
+            return pharmacistRepo.save(pharmacist);
+        }
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void handleNotificationInLogin(Long userId) {
+        if (reminderService.shouldNotifyUser(userId)) {
+            // Create and send the notification
+            NotificationMessage message = new NotificationMessage();
+            message.setMessage("It's time to reorder your medication!");
+            message.setReminderTime(LocalDateTime.now());
+            notificationController.sendMedicationReminder(String.valueOf(userId), message);
+
+            // Remove the user from the notification list
+            reminderService.removeUserFromNotificationList(userId);
+        }
+    }
+
 
 }
+
+
+
+

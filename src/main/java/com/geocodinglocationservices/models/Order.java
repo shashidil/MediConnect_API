@@ -9,7 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-import java.util.List;
+
 
 @Entity
 @Getter
@@ -23,7 +23,6 @@ public class Order {
     @Column(name = "id", nullable = false)
     private Long id;
 
-
     @Column(nullable = false)
     private String paymentMethod;
 
@@ -34,10 +33,10 @@ public class Order {
     private String paymentIntentId;
 
     @Column(nullable = false)
-    private String orderStatus = "Awaiting Shipment"; // Default value
+    private String orderStatus = "Awaiting Shipment";
 
     @Column(nullable = false)
-    private String paymentStatus; // e.g., "Pending", "Completed", "Failed"
+    private String paymentStatus;
 
     @Column(nullable = false)
     private Double totalAmount;
@@ -52,16 +51,19 @@ public class Order {
     @Column(nullable = false)
     private Timestamp lastUpdated;
 
-    @Column(name = "invoice_id")
+    @Column(name = "invoice_number")
     private String invoiceNumber;
 
-    @ManyToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "invoice_id", referencedColumnName = "id")
+    private MedicineInvoice invoice;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "pharmacist_id", nullable = false)
     private Pharmacist pharmacist;
-
 
 }

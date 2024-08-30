@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -23,19 +25,13 @@ public class MedicineInvoice {
 
     private String patientName;
 
-    @Column(nullable = false)
-    private String medicationName;
+    // Use @ElementCollection to map a list of MedicationDetail objects
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "medication_details", joinColumns = @JoinColumn(name = "invoice_id"))
+    private List<MedicationDetail> medications = new ArrayList<>();
 
-    @Column(nullable = false)
-    private String medicationDosage;
-
-    @Column(nullable = false)
-    private int medicationQuantity;
-    @Column(nullable = false)
-    private Double amount;
     @Column(nullable = false)
     private Double total;
-    private String additionalNotes;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -44,6 +40,7 @@ public class MedicineInvoice {
     @ManyToOne
     @JoinColumn(name = "prescription_id", nullable = false)
     private Prescription prescription;
+
     @ManyToOne
     @JoinColumn(name = "pharmacist_id", nullable = false)
     private Pharmacist pharmacist;
@@ -51,5 +48,6 @@ public class MedicineInvoice {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
+
 
 }
