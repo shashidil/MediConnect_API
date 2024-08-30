@@ -9,6 +9,7 @@ import com.geocodinglocationservices.payload.request.SignupRequestPharmacist;
 import com.geocodinglocationservices.payload.request.UserUpdateRequest;
 import com.geocodinglocationservices.payload.response.NotificationMessage;
 import com.geocodinglocationservices.payload.response.UserDTO;
+import com.geocodinglocationservices.payload.response.UserDetailsDto;
 import com.geocodinglocationservices.repository.CustomerRepo;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.geocodinglocationservices.repository.RoleRepository;
@@ -267,6 +268,41 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
             // Remove the user from the notification list
             reminderService.removeUserFromNotificationList(userId);
         }
+    }
+
+    @Override
+    public UserDetailsDto getUserDetails(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDetailsDto userDetailsDto = new UserDetailsDto();
+        userDetailsDto.setUsername(user.getUsername());
+        userDetailsDto.setEmail(user.getEmail());
+
+
+
+        if (user instanceof Customer) {
+            // Populate Customer-specific fields
+            Customer customer = (Customer) user;
+            userDetailsDto.setFirstName(customer.getFirstName());
+            userDetailsDto.setLastName(customer.getLastName());
+            userDetailsDto.setPhoneNumber(customer.getPhoneNumber());
+            userDetailsDto.setAddressLine1(customer.getAddressLine1());
+            userDetailsDto.setCity(customer.getCity());
+            userDetailsDto.setStates(customer.getStates());
+            userDetailsDto.setPostalCode(customer.getPostalCode());
+            userDetailsDto.setRole("Customer");
+        } else if (user instanceof Pharmacist) {
+            // Populate Pharmacist-specific fields
+            Pharmacist pharmacist = (Pharmacist) user;
+            userDetailsDto.setPharmacyName(pharmacist.getPharmacyName());
+            userDetailsDto.setAddressLine1(pharmacist.getAddressLine1());
+            userDetailsDto.setCity(pharmacist.getCity());
+            userDetailsDto.setStates(pharmacist.getStates());
+            userDetailsDto.setPostalCode(pharmacist.getPostalCode());
+            userDetailsDto.setRole("Pharmacist");
+        }
+
+        return userDetailsDto;
     }
 
 

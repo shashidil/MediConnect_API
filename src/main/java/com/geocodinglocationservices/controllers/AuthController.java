@@ -5,6 +5,7 @@ import com.geocodinglocationservices.models.User;
 import com.geocodinglocationservices.payload.request.*;
 import com.geocodinglocationservices.payload.response.JwtResponse;
 import com.geocodinglocationservices.payload.response.MessageResponse;
+import com.geocodinglocationservices.payload.response.UserDetailsDto;
 import com.geocodinglocationservices.repository.RoleRepository;
 import com.geocodinglocationservices.repository.UserRepository;
 import com.geocodinglocationservices.security.jwt.JwtUtils;
@@ -125,6 +126,16 @@ public class AuthController {
       return ResponseEntity.ok(updatedUser);
     } catch (Exception e) {
       return ResponseEntity.badRequest().body("Error updating user: " + e.getMessage());
+    }
+  }
+
+  @GetMapping("/{userId}")
+  public ResponseEntity<?> getUserDetails(@PathVariable Long userId) {
+    try {
+      UserDetailsDto userDetailsDto = authService.getUserDetails(userId);
+      return ResponseEntity.ok(userDetailsDto);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("Error retrieving user details: " + e.getMessage());
     }
   }
 
