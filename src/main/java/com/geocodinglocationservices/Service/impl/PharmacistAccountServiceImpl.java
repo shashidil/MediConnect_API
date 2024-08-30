@@ -3,11 +3,13 @@ package com.geocodinglocationservices.Service.impl;
 import com.geocodinglocationservices.Service.PharmacistAccountService;
 import com.geocodinglocationservices.models.Pharmacist;
 import com.geocodinglocationservices.models.PharmacistAccount;
+import com.geocodinglocationservices.payload.response.Report.PharmacistAccountDto;
 import com.geocodinglocationservices.repository.PharmacistAccountRepo;
 import com.geocodinglocationservices.repository.PharmacistRepo;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +27,8 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
     private  PharmacistRepo pharmacistRepo;
     @Autowired
     private PharmacistAccountRepo pharmacistAccountRepo;
+
+    private ModelMapper modelMapper= new ModelMapper();
 
     @Override
     public PharmacistAccount createAccount(String email, Long pharmacistId) {
@@ -53,8 +57,10 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
     }
 
     @Override
-    public PharmacistAccount getAccountByPharmacistId(Long pharmacistId) {
-        return pharmacistAccountRepo.findByPharmacistId(pharmacistId)
+    public PharmacistAccountDto getAccountByPharmacistId(Long pharmacistId) {
+        PharmacistAccount pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId)
                 .orElseThrow(() -> new UsernameNotFoundException("Pharmacist account not found"));
+
+        return modelMapper.map(pharmacistAccount, PharmacistAccountDto.class);
     }
 }

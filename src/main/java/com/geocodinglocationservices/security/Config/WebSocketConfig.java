@@ -11,6 +11,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         WebSocketMessageBrokerConfigurer.super.configureMessageBroker(registry);
         registry.enableSimpleBroker("/topic","/queue");
         registry.setApplicationDestinationPrefixes("/app");
+        registry.setUserDestinationPrefix("/user");
 
     }
 
@@ -18,10 +19,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         WebSocketMessageBrokerConfigurer.super.registerStompEndpoints(registry);
         registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000")
-                .setAllowedOriginPatterns("*").withSockJS()
-                .setStreamBytesLimit(512 * 1024)
-                .setHttpMessageCacheSize(1000)
-                .setDisconnectDelay(30 * 1000);
+                .setAllowedOriginPatterns("*").withSockJS();
+//                .setStreamBytesLimit(512 * 1024)
+//                .setHttpMessageCacheSize(1000)
+//                .setDisconnectDelay(30 * 1000);
 
 
     }

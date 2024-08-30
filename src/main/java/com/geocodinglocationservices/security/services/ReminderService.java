@@ -33,7 +33,7 @@ public class ReminderService {
 
 //    @Autowired
 //    private MobileNotificationService mobileNotificationService; // Service to send mobile push notifications
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 60000)
     public void checkAndSendRemindersForUser() {
        // System.out.println("checkAndSendRemindersForUser triggered at: " + LocalDateTime.now());
         List<Order> orders = orderRepository.findAll();
