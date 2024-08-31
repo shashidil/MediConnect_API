@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //                .setStreamBytesLimit(512 * 1024)
 //                .setHttpMessageCacheSize(1000)
 //                .setDisconnectDelay(30 * 1000);
+        registry.addEndpoint("/native-ws").setAllowedOriginPatterns("*");
 
 
     }

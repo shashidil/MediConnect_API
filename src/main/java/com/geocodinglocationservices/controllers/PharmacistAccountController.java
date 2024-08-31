@@ -13,7 +13,7 @@ public class PharmacistAccountController {
     private PharmacistAccountService pharmacistAccountService;
 
     @PostMapping()
-    public PharmacistAccount createAccount(@RequestParam String email, @RequestParam Long pharmacistId) {
+    public PharmacistAccountDto createAccount(@RequestParam String email, @RequestParam Long pharmacistId) {
         return pharmacistAccountService.createAccount(email, pharmacistId);
     }
 

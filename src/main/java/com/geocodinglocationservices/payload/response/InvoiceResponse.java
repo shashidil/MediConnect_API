@@ -14,7 +14,6 @@ public class InvoiceResponse {
     private String pharmacistName;
     private String invoiceNumber;
     private List<MedicationResponse> medications;
-    private String additionalNotes;
     private double distance;
     private Double total;
     private Long pharmacistId;

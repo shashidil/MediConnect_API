@@ -31,7 +31,7 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
     private ModelMapper modelMapper= new ModelMapper();
 
     @Override
-    public PharmacistAccount createAccount(String email, Long pharmacistId) {
+    public PharmacistAccountDto createAccount(String email, Long pharmacistId) {
         Stripe.apiKey = apiKey;
 
         Map<String, Object> accountParams = new HashMap<>();
@@ -39,21 +39,18 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
         accountParams.put("country", "US");
         accountParams.put("email", email);
 
-        try {
-            Account account = Account.create(accountParams);
+        // Account account = Account.create(accountParams);
 
-            Pharmacist pharmacist = pharmacistRepo.findById(pharmacistId)
-                    .orElseThrow(() -> new RuntimeException("Pharmacist not found"));
+        Pharmacist pharmacist = pharmacistRepo.findById(pharmacistId)
+                .orElseThrow(() -> new RuntimeException("Pharmacist not found"));
 
-            PharmacistAccount pharmacistAccount = new PharmacistAccount();
-            pharmacistAccount.setStripeAccountId(account.getId());
-            pharmacistAccount.setEmail(email);
-            pharmacistAccount.setPharmacist(pharmacist);
-            return pharmacistAccountRepo.save(pharmacistAccount);
-
-        } catch (StripeException e) {
-            throw new RuntimeException(e);
-        }
+        PharmacistAccount pharmacistAccount = new PharmacistAccount();
+        // pharmacistAccount.setStripeAccountId(account.getId());
+        pharmacistAccount.setStripeAccountId("123365");
+        pharmacistAccount.setEmail(email);
+        pharmacistAccount.setPharmacist(pharmacist);
+        PharmacistAccount saved = pharmacistAccountRepo.save(pharmacistAccount);
+        return modelMapper.map(saved, PharmacistAccountDto.class);
     }
 
     @Override
