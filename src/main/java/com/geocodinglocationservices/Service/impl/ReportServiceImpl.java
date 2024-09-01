@@ -5,6 +5,7 @@ import com.geocodinglocationservices.models.MedicationDetail;
 import com.geocodinglocationservices.models.Order;
 import com.geocodinglocationservices.payload.response.Report.MostSoldMedicineDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO;
+import com.geocodinglocationservices.payload.response.Report.OrderQuantityByMonthDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderReportDto;
 import com.geocodinglocationservices.repository.InvoiceRepository;
 import com.geocodinglocationservices.repository.OrderRepo;
@@ -45,9 +46,10 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<OrderQuantityByDayDTO> getOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<OrderQuantityByMonthDTO> getOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime endDate) {
         return orderRepo.findOrderQuantitiesByLast12Months(startDate, endDate);
     }
+
 
 
 }

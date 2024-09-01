@@ -2,6 +2,7 @@ package com.geocodinglocationservices.repository;
 
 import com.geocodinglocationservices.models.Order;
 import com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO;
+import com.geocodinglocationservices.payload.response.Report.OrderQuantityByMonthDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -27,11 +28,12 @@ public interface OrderRepo extends JpaRepository<Order,Long> {
             "GROUP BY DAY(o.orderDate)")
     List<OrderQuantityByDayDTO> findOrderQuantitiesByMonth(int month, int year);
 
-    @Query("SELECT new com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO(DAY(o.orderDate), COUNT(o.id)) " +
+    @Query("SELECT new com.geocodinglocationservices.payload.response.Report.OrderQuantityByMonthDTO(YEAR(o.orderDate), MONTH(o.orderDate), COUNT(o.id)) " +
             "FROM Order o WHERE o.orderDate BETWEEN :startDate AND :endDate " +
-            "GROUP BY YEAR(o.orderDate), MONTH(o.orderDate), DAY(o.orderDate) " +
-            "ORDER BY YEAR(o.orderDate), MONTH(o.orderDate), DAY(o.orderDate)")
-    List<OrderQuantityByDayDTO> findOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime endDate);
+            "GROUP BY YEAR(o.orderDate), MONTH(o.orderDate) " +
+            "ORDER BY YEAR(o.orderDate), MONTH(o.orderDate)")
+    List<OrderQuantityByMonthDTO> findOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime endDate);
+
 
 
 

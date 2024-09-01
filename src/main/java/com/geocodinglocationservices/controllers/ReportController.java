@@ -4,6 +4,7 @@ import com.geocodinglocationservices.Service.ReportService;
 import com.geocodinglocationservices.models.MedicationDetail;
 import com.geocodinglocationservices.payload.response.Report.MostSoldMedicineDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO;
+import com.geocodinglocationservices.payload.response.Report.OrderQuantityByMonthDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderReportDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -58,7 +59,7 @@ public class ReportController {
         return reportService.getOrderQuantitiesByMonth(month, year);
     }
     @GetMapping("/order-quantities-month")
-    public List<OrderQuantityByDayDTO> getOrderQuantitiesByLast12Months() {
+    public List<OrderQuantityByMonthDTO> getOrderQuantitiesByLast12Months() {
         LocalDate currentDate = LocalDate.now();
         LocalDate startDate = currentDate.minusMonths(12).withDayOfMonth(1);
 
@@ -68,6 +69,7 @@ public class ReportController {
 
         return reportService.getOrderQuantitiesByLast12Months(startDateTime, endDateTime);
     }
+
 
 
 

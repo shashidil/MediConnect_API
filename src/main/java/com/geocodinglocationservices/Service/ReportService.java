@@ -3,6 +3,7 @@ package com.geocodinglocationservices.Service;
 import com.geocodinglocationservices.models.MedicationDetail;
 import com.geocodinglocationservices.payload.response.Report.MostSoldMedicineDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO;
+import com.geocodinglocationservices.payload.response.Report.OrderQuantityByMonthDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderReportDto;
 
 import java.sql.Timestamp;
@@ -18,5 +19,5 @@ public interface ReportService {
     List<OrderQuantityByDayDTO> getOrderQuantitiesByMonth(int month, int year);
 
 
-    List<OrderQuantityByDayDTO> getOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime currentDate);
+    List<OrderQuantityByMonthDTO> getOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime currentDate);
 }
