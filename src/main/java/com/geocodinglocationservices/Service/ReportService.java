@@ -6,6 +6,7 @@ import com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayD
 import com.geocodinglocationservices.payload.response.Report.OrderReportDto;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,4 +16,7 @@ public interface ReportService {
     List<MostSoldMedicineDTO> getTop5MostSoldMedicines(int month, int year);
 
     List<OrderQuantityByDayDTO> getOrderQuantitiesByMonth(int month, int year);
+
+
+    List<OrderQuantityByDayDTO> getOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime currentDate);
 }

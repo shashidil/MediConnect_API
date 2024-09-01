@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,14 @@ public interface OrderRepo extends JpaRepository<Order,Long> {
             "FROM Order o WHERE MONTH(o.orderDate) = :month AND YEAR(o.orderDate) = :year " +
             "GROUP BY DAY(o.orderDate)")
     List<OrderQuantityByDayDTO> findOrderQuantitiesByMonth(int month, int year);
+
+    @Query("SELECT new com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO(DAY(o.orderDate), COUNT(o.id)) " +
+            "FROM Order o WHERE o.orderDate BETWEEN :startDate AND :endDate " +
+            "GROUP BY YEAR(o.orderDate), MONTH(o.orderDate), DAY(o.orderDate) " +
+            "ORDER BY YEAR(o.orderDate), MONTH(o.orderDate), DAY(o.orderDate)")
+    List<OrderQuantityByDayDTO> findOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime endDate);
+
+
 
 
 }

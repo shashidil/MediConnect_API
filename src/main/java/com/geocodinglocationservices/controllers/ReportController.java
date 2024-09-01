@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -36,11 +38,35 @@ public class ReportController {
         return reportService.getTop5MostSoldMedicines(month, year);
     }
 
+    @GetMapping("/top-medicines/month")
+    public List<MostSoldMedicineDTO> getTop5Medicines() {
+        // Get the current date
+        LocalDate currentDate = LocalDate.now();
+
+        // Get the previous month and year
+        YearMonth lastMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonthValue()).minusMonths(1);
+        int month = lastMonth.getMonthValue();
+        int year = lastMonth.getYear();
+
+        return reportService.getTop5MostSoldMedicines(month, year);
+    }
+
     @GetMapping("/order-quantities-by-month")
     public List<OrderQuantityByDayDTO> getOrderQuantitiesByMonth(
             @RequestParam int month,
             @RequestParam int year) {
         return reportService.getOrderQuantitiesByMonth(month, year);
+    }
+    @GetMapping("/order-quantities-month")
+    public List<OrderQuantityByDayDTO> getOrderQuantitiesByLast12Months() {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startDate = currentDate.minusMonths(12).withDayOfMonth(1);
+
+        // Convert LocalDate to LocalDateTime at the start of the day
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = currentDate.atStartOfDay();
+
+        return reportService.getOrderQuantitiesByLast12Months(startDateTime, endDateTime);
     }
 
 

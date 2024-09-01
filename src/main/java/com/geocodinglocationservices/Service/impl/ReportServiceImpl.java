@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,4 +43,11 @@ public class ReportServiceImpl implements ReportService {
     public List<OrderQuantityByDayDTO> getOrderQuantitiesByMonth(int month, int year) {
         return orderRepo.findOrderQuantitiesByMonth(month, year);
     }
+
+    @Override
+    public List<OrderQuantityByDayDTO> getOrderQuantitiesByLast12Months(LocalDateTime startDate, LocalDateTime endDate) {
+        return orderRepo.findOrderQuantitiesByLast12Months(startDate, endDate);
+    }
+
+
 }

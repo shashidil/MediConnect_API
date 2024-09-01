@@ -10,6 +10,7 @@ import lombok.*;
 public class MedicationResponse {
     private String medicationName;
     private String medicationDosage;
+    private String days;
     private int medicationQuantity;
     private Double amount;
 

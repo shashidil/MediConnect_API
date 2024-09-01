@@ -82,6 +82,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             medicationDetail.setMedicationDosage(medication.getMedicationDosage());
             medicationDetail.setMedicationQuantity(medication.getMedicationQuantity());
             medicationDetail.setAmount(medication.getAmount());
+            medicationDetail.setDays(medication.getDays());
             return medicationDetail;
         }).collect(Collectors.toList());
 
@@ -122,6 +123,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 response.setMedicationName(medication.getMedicationName());
                 response.setMedicationDosage(medication.getMedicationDosage());
                 response.setMedicationQuantity(medication.getMedicationQuantity());
+                response.setDays(medication.getDays());
                 response.setAmount(medication.getAmount());
                 return response;
             }).collect(Collectors.toList());
