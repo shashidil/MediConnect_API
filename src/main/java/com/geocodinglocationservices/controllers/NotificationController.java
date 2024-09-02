@@ -11,7 +11,9 @@ public class NotificationController {
     private SimpMessagingTemplate messagingTemplate;
 
     public void sendMedicationReminder(String userId, NotificationMessage message) {
-        messagingTemplate.convertAndSendToUser(userId, "/queue/notifications", message);
+        System.out.println("Sending notification to user: " + userId);
+        System.out.println("Notification Message: " + message.toString());
+        messagingTemplate.convertAndSendToUser(userId, "/queue/notifications", "Test Notification");
     }
 
 

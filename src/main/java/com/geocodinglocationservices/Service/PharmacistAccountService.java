@@ -6,4 +6,6 @@ import com.geocodinglocationservices.payload.response.Report.PharmacistAccountDt
 public interface PharmacistAccountService {
     PharmacistAccountDto createAccount(String email, Long pharmacistId);
     PharmacistAccountDto getAccountByPharmacistId(Long pharmacistId);
+
+    PharmacistAccountDto updateAccountById(Long pharmacistId,String email);
 }

@@ -81,10 +81,10 @@ public class WebSecurityConfig {
   public RestTemplate restTemplate() {
     return new RestTemplate();
   }
-
+@Bean
 CorsConfigurationSource apiConfigurationSource() {
   CorsConfiguration configuration = new CorsConfiguration();
-  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:55484"));
+  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:56863"));
   configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
   configuration.addAllowedHeader("*");
   configuration.setAllowCredentials(true);
@@ -93,6 +93,12 @@ CorsConfigurationSource apiConfigurationSource() {
   source.registerCorsConfiguration("/**", configuration);
   return source;
 }
+  @Bean
+  public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+    StrictHttpFirewall firewall = new StrictHttpFirewall();
+    firewall.setAllowUrlEncodedSlash(true);
+    return firewall;
+  }
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 

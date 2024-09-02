@@ -60,4 +60,13 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
 
         return modelMapper.map(pharmacistAccount, PharmacistAccountDto.class);
     }
+
+    @Override
+    public PharmacistAccountDto updateAccountById(Long pharmacistId,String email) {
+        PharmacistAccount pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId)
+                .orElseThrow(() -> new UsernameNotFoundException("Pharmacist account not found"));
+        pharmacistAccount.setEmail(email);
+        PharmacistAccount saved = pharmacistAccountRepo.save(pharmacistAccount);
+        return modelMapper.map(saved, PharmacistAccountDto.class);
+    }
 }

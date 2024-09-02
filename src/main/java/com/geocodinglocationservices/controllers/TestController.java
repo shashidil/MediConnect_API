@@ -27,18 +27,18 @@ public class TestController {
     private NotificationController notificationController;
 
     // Endpoint to trigger a test notification
-    @GetMapping("/sendTestNotification")
-    public String sendTestNotification(@RequestParam String userId) {
-        // Create a sample message
-        NotificationMessage message = new NotificationMessage(
-                "This is a test reminder message!",
-                "Sample Medication",
-                LocalDateTime.now().plusMinutes(15)
-        );
-
-        // Send the message to the specified user
-        notificationController.sendMedicationReminder(userId, message);
-
-        return "Test notification sent to user with ID: " + userId;
-    }
+//    @GetMapping("/sendTestNotification")
+//    public String sendTestNotification(@RequestParam String userId) {
+//        // Create a sample message
+//        NotificationMessage message = new NotificationMessage(
+//                "This is a test reminder message!",
+//                "Sample Medication",
+//                LocalDateTime.now().plusMinutes(15)
+//        );
+//
+//        // Send the message to the specified user
+//        notificationController.sendMedicationReminder(userId, message);
+//
+//        return "Test notification sent to user with ID: " + userId;
+//    }
 }

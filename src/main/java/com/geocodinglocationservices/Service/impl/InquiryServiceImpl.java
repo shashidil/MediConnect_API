@@ -4,6 +4,7 @@ import com.geocodinglocationservices.Service.InquiryService;
 import com.geocodinglocationservices.models.Inquiry;
 import com.geocodinglocationservices.models.User;
 import com.geocodinglocationservices.payload.request.InquiryRequestDTO;
+import com.geocodinglocationservices.payload.response.InquiryResponseDTO;
 import com.geocodinglocationservices.repository.InquiryRepository;
 import com.geocodinglocationservices.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,37 +23,40 @@ public class InquiryServiceImpl implements InquiryService {
     private UserRepository userRepository;
 
     @Override
-    public InquiryRequestDTO createInquiry(InquiryRequestDTO inquiryDTO) {
-        User sender = userRepository.findById(inquiryDTO.getSenderId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public InquiryResponseDTO createInquiry(InquiryRequestDTO inquiryDTO) {
+        User sender = userRepository.findById(inquiryDTO.getSenderId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Inquiry inquiry = new Inquiry();
         inquiry.setSubject(inquiryDTO.getSubject());
         inquiry.setMessage(inquiryDTO.getMessage());
         inquiry.setSender(sender);
-        inquiry = inquiryRepository.save(inquiry);
+        inquiry.setStatus(inquiryDTO.getStatus());
 
-        inquiryDTO.setId(inquiry.getId());
-        return inquiryDTO;
+        // Save inquiry and return the response DTO
+        inquiry = inquiryRepository.save(inquiry);
+        return convertToResponseDTO(inquiry);
     }
 
     @Override
-    public List<InquiryRequestDTO> getInquiriesBySenderType(Class<? extends User> senderType) {
+    public List<InquiryResponseDTO> getInquiriesBySenderType(Class<? extends User> senderType) {
         return inquiryRepository.findBySenderType(senderType)
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public InquiryRequestDTO updateInquiryStatus(Long id, String status) {
-        Inquiry inquiry = inquiryRepository.findById(id).orElseThrow(() -> new RuntimeException("Inquiry not found"));
+    public InquiryResponseDTO updateInquiryStatus(Long id, String status) {
+        Inquiry inquiry = inquiryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
         inquiry.setStatus(status);
-        inquiryRepository.save(inquiry);
-        return convertToDTO(inquiry);
+        inquiry = inquiryRepository.save(inquiry);
+        return convertToResponseDTO(inquiry);
     }
 
-    private InquiryRequestDTO convertToDTO(Inquiry inquiry) {
-        return new InquiryRequestDTO(
+    private InquiryResponseDTO convertToResponseDTO(Inquiry inquiry) {
+        return new InquiryResponseDTO(
                 inquiry.getId(),
                 inquiry.getSubject(),
                 inquiry.getMessage(),
@@ -63,3 +67,4 @@ public class InquiryServiceImpl implements InquiryService {
         );
     }
 }
+

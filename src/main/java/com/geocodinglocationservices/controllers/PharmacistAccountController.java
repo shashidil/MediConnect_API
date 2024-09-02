@@ -21,4 +21,9 @@ public class PharmacistAccountController {
     public PharmacistAccountDto getAccount(@PathVariable Long pharmacistId) {
         return pharmacistAccountService.getAccountByPharmacistId(pharmacistId);
     }
+
+    @PutMapping("/{pharmacistId}")
+    public PharmacistAccountDto updateAcoount (@RequestParam String email ,@PathVariable Long pharmacistId){
+        return pharmacistAccountService.updateAccountById(pharmacistId,email);
+    }
 }

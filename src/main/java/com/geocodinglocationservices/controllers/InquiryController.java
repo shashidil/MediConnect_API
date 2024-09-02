@@ -4,6 +4,7 @@ import com.geocodinglocationservices.Service.InquiryService;
 import com.geocodinglocationservices.models.Customer;
 import com.geocodinglocationservices.models.Pharmacist;
 import com.geocodinglocationservices.payload.request.InquiryRequestDTO;
+import com.geocodinglocationservices.payload.response.InquiryResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,22 +17,22 @@ public class InquiryController {
     private InquiryService inquiryService;
 
     @PostMapping("/create")
-    public InquiryRequestDTO createInquiry(@RequestBody InquiryRequestDTO inquiryDTO) {
+    public InquiryResponseDTO createInquiry(@RequestBody InquiryRequestDTO inquiryDTO) {
         return inquiryService.createInquiry(inquiryDTO);
     }
 
     @GetMapping("/customer-inquiries")
-    public List<InquiryRequestDTO> getCustomerInquiries() {
+    public List<InquiryResponseDTO> getCustomerInquiries() {
         return inquiryService.getInquiriesBySenderType(Customer.class);
     }
 
     @GetMapping("/pharmacist-inquiries")
-    public List<InquiryRequestDTO> getPharmacistInquiries() {
+    public List<InquiryResponseDTO> getPharmacistInquiries() {
         return inquiryService.getInquiriesBySenderType(Pharmacist.class);
     }
 
     @PutMapping("/update-status/{id}")
-    public InquiryRequestDTO updateInquiryStatus(@PathVariable Long id, @RequestParam String status) {
+    public InquiryResponseDTO updateInquiryStatus(@PathVariable Long id, @RequestParam String status) {
         return inquiryService.updateInquiryStatus(id, status);
     }
 }

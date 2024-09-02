@@ -20,10 +20,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         WebSocketMessageBrokerConfigurer.super.registerStompEndpoints(registry);
         registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000")
                 .setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000")
+                .setAllowedOriginPatterns("*");
 //                .setStreamBytesLimit(512 * 1024)
 //                .setHttpMessageCacheSize(1000)
 //                .setDisconnectDelay(30 * 1000);
-        registry.addEndpoint("/native-ws").setAllowedOriginPatterns("*");
+
 
 
     }
