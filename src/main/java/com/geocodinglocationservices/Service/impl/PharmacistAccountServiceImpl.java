@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PharmacistAccountServiceImpl implements PharmacistAccountService {
@@ -55,9 +56,7 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
 
     @Override
     public PharmacistAccountDto getAccountByPharmacistId(Long pharmacistId) {
-        PharmacistAccount pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId)
-                .orElseThrow(() -> new UsernameNotFoundException("Pharmacist account not found"));
-
+        Optional<PharmacistAccount> pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId);
         return modelMapper.map(pharmacistAccount, PharmacistAccountDto.class);
     }
 

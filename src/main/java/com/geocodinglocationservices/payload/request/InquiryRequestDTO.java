@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InquiryRequestDTO {
-    private Long id;
     private String subject;
     private String message;
     private String status;
