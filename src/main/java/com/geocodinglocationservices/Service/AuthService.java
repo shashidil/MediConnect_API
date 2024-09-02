@@ -21,7 +21,7 @@ public interface AuthService {
 
     List<UserDTO> findDistinctChatUsers(Long userId);
 
-    User updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException;
+    UserDTO updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException;
 
     void handleNotificationInLogin(Long userId);
 

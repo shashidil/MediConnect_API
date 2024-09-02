@@ -206,7 +206,7 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
     }
 
     @Override
-    public User updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException {
+    public UserDTO updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException {
         String fullAddress;
         GeocodingService.LatLng coordinates;
         User user = userRepository.findById(userId)
@@ -239,7 +239,7 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
             customer.setLatitude(updateRequest.getLatitude());
             customer.setLongitude(updateRequest.getLongitude());
 
-            return customerRepo.save(customer);
+             customerRepo.save(customer);
         } else if (user instanceof Pharmacist) {
             Pharmacist pharmacist = (Pharmacist) user;
             pharmacist.setPharmacyName(updateRequest.getPharmacyName());
@@ -250,10 +250,15 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
             pharmacist.setLatitude(updateRequest.getLatitude());
             pharmacist.setLongitude(updateRequest.getLongitude());
 
-            return pharmacistRepo.save(pharmacist);
+             pharmacistRepo.save(pharmacist);
         }
 
-        return userRepository.save(user);
+        User save = userRepository.save(user);
+        UserDTO dto = new UserDTO();
+        dto.setName(save.getUsername());
+        dto.setId(save.getId());
+        dto.setEmail(save.getEmail());
+        return dto;
     }
 
     @Override

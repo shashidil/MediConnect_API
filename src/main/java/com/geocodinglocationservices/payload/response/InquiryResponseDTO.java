@@ -14,6 +14,7 @@ public class InquiryResponseDTO {
     private String message;
     private String status;
     private Long senderId;
+    private String senderName;
     private Timestamp createdDate;
     private Timestamp lastUpdated;
 }

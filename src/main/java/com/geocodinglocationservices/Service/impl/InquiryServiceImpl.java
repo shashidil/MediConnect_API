@@ -62,6 +62,7 @@ public class InquiryServiceImpl implements InquiryService {
                 inquiry.getMessage(),
                 inquiry.getStatus(),
                 inquiry.getSender().getId(),
+                inquiry.getSender().getUsername(),
                 inquiry.getCreatedDate(),
                 inquiry.getLastUpdated()
         );
