@@ -14,5 +14,7 @@ public class PrescriptionDTO {
     private String fileName;
     private String filePath;
     private UserDTO user;
+    private String medicationName;
+    private int medicationQuantity;
     private byte[] imageData;
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public interface PrescriptionService {
     Prescription storeFile(MultipartFile file, Long userId,PharmacistIdRequest pharmacistIdRequest);
 
-    Prescription storeMedicine(User userId, PrescriptionRequest prescriptionRequest,PharmacistIdRequest pharmacistIdRequest);
+    Prescription storeMedicine(Long userId, PrescriptionRequest prescriptionRequest,PharmacistIdRequest pharmacistIdRequest);
 
     List<PrescriptionDTO> getAllPrescriptionsForPharmacist(Long pharmacistId);
 }

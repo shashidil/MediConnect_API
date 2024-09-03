@@ -104,10 +104,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public Prescription storeMedicine(User userId, PrescriptionRequest prescriptionRequest, PharmacistIdRequest pharmacistIdRequest) {
+    public Prescription storeMedicine(Long userId, PrescriptionRequest prescriptionRequest, PharmacistIdRequest pharmacistIdRequest) {
         Prescription prescription = modelMapper.map(prescriptionRequest, Prescription.class);
-        prescription.setUser(userId);
-        prescription.setPharmacists((List<Pharmacist>) pharmacistIdRequest);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        prescription.setUser(user);
+        prescription.setPharmacists(pharmacistIdRequest.getPharmacistId()
+                .stream()
+                .map(pharmacistService::getPharmacistById)
+                .collect(Collectors.toList()));
         return prescriptionRepo.save(prescription);
 
     }
@@ -127,6 +132,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescriptionDTO.setId(prescription.getId());
         prescriptionDTO.setFileName(prescription.getFileName());
         prescriptionDTO.setFilePath(prescription.getFilePath());
+        prescriptionDTO.setMedicationName(prescription.getMedicationName());
+        prescriptionDTO.setMedicationQuantity(prescription.getMedicationQuantity());
+
 
         User user = prescription.getUser();
         UserDTO userDTO = new UserDTO();

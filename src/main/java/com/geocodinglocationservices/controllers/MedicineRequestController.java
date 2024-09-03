@@ -6,6 +6,7 @@ import com.geocodinglocationservices.Service.MedicineRequestService;
 import com.geocodinglocationservices.Service.PrescriptionService;
 import com.geocodinglocationservices.models.Prescription;
 import com.geocodinglocationservices.models.User;
+import com.geocodinglocationservices.payload.request.MedicineUploadRequest;
 import com.geocodinglocationservices.payload.request.PharmacistIdRequest;
 import com.geocodinglocationservices.payload.request.PrescriptionRequest;
 import com.geocodinglocationservices.payload.response.PrescriptionDTO;
@@ -46,10 +47,15 @@ public class MedicineRequestController {
    }
 
     @PostMapping("/uploadMedicine/{id}")
-    public ResponseEntity<String> uploadMedicine(@PathVariable("id")User userId,@RequestBody PrescriptionRequest prescriptionRequest,
-                                                 @Valid @RequestBody PharmacistIdRequest pharmacistIdRequest) {
-        Prescription prescription = prescriptionService.storeMedicine(userId,prescriptionRequest,pharmacistIdRequest);
-        return ResponseEntity.ok("Medicine uploaded successfully: ");
+    public ResponseEntity<String> uploadMedicine(
+            @PathVariable("id") Long userId,
+            @Valid @RequestBody MedicineUploadRequest medicineUploadRequest) {
+
+        Prescription prescription = prescriptionService.storeMedicine(userId,
+                medicineUploadRequest.getPrescriptionRequest(),
+                medicineUploadRequest.getPharmacistIdRequest());
+
+        return ResponseEntity.ok("Medicine uploaded successfully.");
     }
 
    // @PreAuthorize("hasRole('ROLE_PHARMACIST')")
