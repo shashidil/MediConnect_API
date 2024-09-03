@@ -52,7 +52,8 @@ public class WebSecurityConfig {
           "/api/reports/**",
           "/api/inquiries/**",
           "/api/test/**",
-          "/api/pharmacist-account/**"
+          "/api/pharmacist-account/**",
+          "/api/userfcmtoken/**"
 
 
   };
@@ -84,7 +85,7 @@ public class WebSecurityConfig {
 @Bean
 CorsConfigurationSource apiConfigurationSource() {
   CorsConfiguration configuration = new CorsConfiguration();
-  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:64736"));
+  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:49892"));
   configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
   configuration.addAllowedHeader("*");
   configuration.setAllowCredentials(true);

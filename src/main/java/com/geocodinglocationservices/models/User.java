@@ -58,4 +58,7 @@ public class User {
 
   @OneToMany(mappedBy = "receiver")
   private Set<ChatMessage> receivedMessages;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserFcmToken> fcmTokens;
 }

@@ -57,7 +57,10 @@ public class PharmacistAccountServiceImpl implements PharmacistAccountService {
     @Override
     public PharmacistAccountDto getAccountByPharmacistId(Long pharmacistId) {
         Optional<PharmacistAccount> pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId);
-        return modelMapper.map(pharmacistAccount, PharmacistAccountDto.class);
+        PharmacistAccountDto dto = new PharmacistAccountDto();
+        dto.setId(pharmacistAccount.get().getId());
+        dto.setEmail(pharmacistAccount.get().getEmail());
+        return  dto;
     }
 
     @Override

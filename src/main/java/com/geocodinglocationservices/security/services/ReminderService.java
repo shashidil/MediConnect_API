@@ -1,5 +1,6 @@
 package com.geocodinglocationservices.security.services;
 
+import com.geocodinglocationservices.Service.UserFcmTokenService;
 import com.geocodinglocationservices.controllers.NotificationController;
 import com.geocodinglocationservices.models.MedicationDetail;
 import com.geocodinglocationservices.models.MedicineInvoice;
@@ -28,7 +29,8 @@ public class ReminderService {
 
     @Autowired
     private NotificationController notificationController;
-
+    @Autowired
+    private UserFcmTokenService userFcmTokenService;
     private Set<Long> usersToNotify = ConcurrentHashMap.newKeySet();
 
 //    @Autowired
@@ -55,7 +57,8 @@ public class ReminderService {
                 }
             }
         }
-
+        System.out.println(usersToNotify);
+        sendNotificationsToUsers();
     }
 
     private boolean shouldSendReminder(MedicationDetail medication, Order order) {
@@ -84,7 +87,24 @@ public class ReminderService {
       //  System.out.println("Order ID: " + order.getId() + " | Days since order: " + daysSinceOrder + " | Days left: " + daysLeft);
         return daysLeft <= 3;
     }
+    private void sendNotificationsToUsers() {
+        for (Long userId : usersToNotify) {
+            // Fetch the user's FCM token
+            String fcmToken = userFcmTokenService.getFcmTokenByUserId(userId);
 
+            if (fcmToken != null && !fcmToken.isEmpty()) {
+                NotificationMessage message = new NotificationMessage();
+                message.setMessage("It's time to reorder your medication!");
+                message.setReminderTime(LocalDateTime.now());
+
+                // Send notification using the FCM token
+                notificationController.sendMedicationReminder(fcmToken, message);
+            }
+
+            // Remove the user from the notification list after sending the notification
+            removeUserFromNotificationList(userId);
+        }
+    }
 
     public boolean shouldNotifyUser(Long userId) {
         System.out.println(usersToNotify);
@@ -94,4 +114,6 @@ public class ReminderService {
     public void removeUserFromNotificationList(Long userId) {
         usersToNotify.remove(userId);
     }
+
+
 }

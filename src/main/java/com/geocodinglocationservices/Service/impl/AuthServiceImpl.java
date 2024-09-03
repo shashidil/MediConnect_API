@@ -263,24 +263,19 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
 
     @Override
     public void handleNotificationInLogin(Long userId) {
-//        if (reminderService.shouldNotifyUser(userId)) {
-//            // Create and send the notification
-//            System.out.println(reminderService.shouldNotifyUser(userId));
-//            NotificationMessage message = new NotificationMessage();
-//            message.setMessage("It's time to reorder your medication!");
-//            message.setReminderTime(LocalDateTime.now());
-//            notificationController.sendMedicationReminder(String.valueOf(userId), message);
-//
-//            // Remove the user from the notification list
-//            reminderService.removeUserFromNotificationList(userId);
-//        }
-
-        NotificationMessage message = new NotificationMessage();
+        if (reminderService.shouldNotifyUser(userId)) {
+            // Create and send the notification
+            System.out.println(reminderService.shouldNotifyUser(userId));
+            NotificationMessage message = new NotificationMessage();
             message.setMessage("It's time to reorder your medication!");
-            message.setMedicationName("set medication");
             message.setReminderTime(LocalDateTime.now());
-            notificationController.sendMedicationReminder(String.valueOf(userId), message);
+
+
+            // Remove the user from the notification list
             reminderService.removeUserFromNotificationList(userId);
+        }
+
+
 
     }
 

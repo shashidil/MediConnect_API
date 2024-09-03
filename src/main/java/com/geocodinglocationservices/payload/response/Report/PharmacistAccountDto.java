@@ -1,8 +1,11 @@
 package com.geocodinglocationservices.payload.response.Report;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class PharmacistAccountDto {
     private Long id;
     private String email;
