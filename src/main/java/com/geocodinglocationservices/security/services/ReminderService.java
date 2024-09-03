@@ -98,7 +98,7 @@ public class ReminderService {
                 message.setReminderTime(LocalDateTime.now());
 
                 // Send notification using the FCM token
-                notificationController.sendMedicationReminder(fcmToken, message);
+               // notificationController.sendMedicationReminder(fcmToken, message);
             }
 
             // Remove the user from the notification list after sending the notification
