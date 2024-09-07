@@ -96,19 +96,16 @@ public class OrderServiceImpl implements OrderService {
         params.put("currency", "usd");
 
         try {
-            return PaymentIntent.create(params);
+            return PaymentIntent.create(params); // Keep returning PaymentIntent
         } catch (StripeException e) {
             System.out.println("StripeException: " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stripe API error: " + e.getMessage(), e);
         } catch (Exception e) {
-            // Handle other potential exceptions
             System.out.println("Exception: " + e.getMessage());
-
-            // Respond with a more generic error status code
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error occurred", e);
         }
-
     }
+
 
     @Override
     public List<OrderResponse> getOrders(Long customerId,Long pharmacistId) {

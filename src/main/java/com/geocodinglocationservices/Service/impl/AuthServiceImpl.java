@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -262,29 +263,31 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
     }
 
     @Override
-    public NotificationMessage handleNotificationInLogin(Long userId) {
-        NotificationMessage message = new NotificationMessage();
+    public List<NotificationMessage> handleNotificationInLogin(Long userId) {
+        List<NotificationMessage> notificationMessages = new ArrayList<>(); // To store multiple notifications
+
         if (reminderService.shouldNotifyUser(userId)) {
             List<String> medications = reminderService.getMedicationsForUser(userId);
 
             if (!medications.isEmpty()) {
-                // Get the first medication name or handle multiple medications if needed
-                String medicationNames = String.join(", ", medications);
+                // Loop through each medication and create a notification message
+                for (String medicationName : medications) {
+                    NotificationMessage message = new NotificationMessage();
+                    message.setMessage("It's time to reorder your medication");
+                    message.setMedicationName(medicationName);
+                    message.setReminderTime(LocalDateTime.now());
 
+                    notificationMessages.add(message);  // Add to the list
+                }
 
-                message.setMessage("It's time to reorder your medication(s)");
-                message.setMedicationName(medicationNames);
-                message.setReminderTime(LocalDateTime.now());
-
-                // Remove the user from the notification list
+                // Remove the user from the notification list after processing
                 reminderService.removeUserFromNotificationList(userId);
-
-                return message;
             }
         }
 
-        return message;
+        return notificationMessages;
     }
+
 
     @Override
     public UserDetailsDto getUserDetails(Long userId) {

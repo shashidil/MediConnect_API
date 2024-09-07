@@ -136,8 +136,8 @@ public class AuthController {
   }
 
   @GetMapping("/notification/{userId}")
-  public ResponseEntity<NotificationMessage> getNotification(@PathVariable Long userId) {
-    NotificationMessage notificationMessage = authService.handleNotificationInLogin(userId);
+  public ResponseEntity<List<NotificationMessage>> getNotification(@PathVariable Long userId) {
+    List<NotificationMessage> notificationMessage = authService.handleNotificationInLogin(userId);
     return ResponseEntity.ok(notificationMessage);
 
   }

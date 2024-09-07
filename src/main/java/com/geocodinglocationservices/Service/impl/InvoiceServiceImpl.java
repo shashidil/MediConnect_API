@@ -110,6 +110,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     customer.getLatitude(), customer.getLongitude(),
                     invoice.getPharmacist().getLatitude(), invoice.getPharmacist().getLongitude()));
             invoiceResponse.setInvoiceNumber(invoice.getInvoiceNumber());
+            invoiceResponse.setPrescriptionId(invoice.getPrescription().getId());
             invoiceResponse.setTotal(invoice.getTotal());
             invoiceResponse.setPharmacistId(invoice.getPharmacist().getId());
             invoiceResponse.setCustomerLatitude(customer.getLatitude());

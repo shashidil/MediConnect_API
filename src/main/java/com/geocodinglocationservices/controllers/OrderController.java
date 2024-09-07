@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,11 +23,17 @@ public class OrderController {
 
 
     @PostMapping("/create-payment-intent")
-    public ResponseEntity<PaymentIntent> createPaymentIntent(@RequestBody Map<String, Integer> data) throws StripeException {
+    public ResponseEntity<Map<String, String>> createPaymentIntent(@RequestBody Map<String, Integer> data) throws StripeException {
         int amount = data.get("amount");
         PaymentIntent paymentIntent = orderService.createPaymentIntent(amount);
-        return ResponseEntity.ok(paymentIntent);
+
+        // Return the client secret
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("client_secret", paymentIntent.getClientSecret());
+
+        return ResponseEntity.ok(responseData);
     }
+
     @PostMapping("/process-payment")
     public ResponseEntity<OrderResponse> processPayment(
             @RequestParam Long Id,

@@ -24,7 +24,7 @@ public interface AuthService {
 
     UserDTO updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException;
 
-    NotificationMessage handleNotificationInLogin(Long userId);
+    List<NotificationMessage> handleNotificationInLogin(Long userId);
 
     UserDetailsDto getUserDetails(Long userId);
 }
