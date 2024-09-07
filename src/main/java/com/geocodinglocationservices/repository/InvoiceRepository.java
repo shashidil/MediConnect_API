@@ -16,8 +16,6 @@ import java.util.Optional;
 public interface InvoiceRepository extends JpaRepository<MedicineInvoice,Long> {
     List<MedicineInvoice> findByCustomer(Customer customer);
 
-    List<MedicineInvoice> findByinvoiceNumber(String invoiceId);
-
     @Query("SELECT new com.geocodinglocationservices.payload.response.Report.MostSoldMedicineDTO(md.medicationName, SUM(md.medicationQuantity)) " +
             "FROM MedicineInvoice mi JOIN mi.medications md " +
             "WHERE MONTH(mi.issuedDate) = :month AND YEAR(mi.issuedDate) = :year " +

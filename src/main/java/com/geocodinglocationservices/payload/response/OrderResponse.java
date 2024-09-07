@@ -12,6 +12,7 @@ public class OrderResponse {
     private String orderStatus;
     private String paymentStatus;
     private String invoiceNumber;
+    private String trackingNumber;
     private Double totalAmount;
     private Date orderDate;
 }

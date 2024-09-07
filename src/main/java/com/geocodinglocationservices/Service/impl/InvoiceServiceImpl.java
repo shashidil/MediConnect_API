@@ -137,24 +137,24 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public List<InvoiceResponse> getInvoicesByInvoiceNumber(String invoiceNumber) {
-        List<MedicineInvoice> medicineInvoices = invoiceRepository.findByinvoiceNumber(invoiceNumber);
-        List<InvoiceResponse> invoiceResponses = new ArrayList<>();
+    public InvoiceResponse getInvoicesByInvoiceNumber(Long invoiceId) {
+        MedicineInvoice medicineInvoices = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new UsernameNotFoundException("Invoice Not Found"));
 
-        for (MedicineInvoice invoice : medicineInvoices) {
             InvoiceResponse invoiceResponse = new InvoiceResponse();
-            invoiceResponse.setPharmacistName(invoice.getPharmacist().getPharmacyName());
-            invoiceResponse.setInvoiceNumber(invoice.getInvoiceNumber());
-            invoiceResponse.setTotal(invoice.getTotal());
+            invoiceResponse.setPharmacistName(medicineInvoices.getPharmacist().getPharmacyName());
+            invoiceResponse.setInvoiceNumber(medicineInvoices.getInvoiceNumber());
+            invoiceResponse.setTotal(medicineInvoices.getTotal());
             invoiceResponse.setDistance(0.0);  // Calculate distance if needed
-            invoiceResponse.setPharmacistId(invoice.getPharmacist().getId());
-            invoiceResponse.setPharmacistLatitude(invoice.getPharmacist().getLatitude());
-            invoiceResponse.setPharmacistLongitude(invoice.getPharmacist().getLongitude());
-            invoiceResponse.setCustomerLatitude(invoice.getCustomer().getLatitude());
-            invoiceResponse.setCustomerLongitude(invoice.getCustomer().getLongitude());
+            invoiceResponse.setPharmacistId(medicineInvoices.getPharmacist().getId());
+            invoiceResponse.setPharmacistLatitude(medicineInvoices.getPharmacist().getLatitude());
+            invoiceResponse.setPharmacistLongitude(medicineInvoices.getPharmacist().getLongitude());
+            invoiceResponse.setCustomerLatitude(medicineInvoices.getCustomer().getLatitude());
+            invoiceResponse.setCustomerLongitude(medicineInvoices.getCustomer().getLongitude());
+            invoiceResponse.setPrescriptionId(medicineInvoices.getPrescription().getId());
 
             // Convert the list of MedicationDetail to MedicationResponse
-            List<MedicationResponse> medicationResponses = invoice.getMedications().stream().map(medication -> {
+            List<MedicationResponse> medicationResponses = medicineInvoices.getMedications().stream().map(medication -> {
                 MedicationResponse response = new MedicationResponse();
                 response.setMedicationName(medication.getMedicationName());
                 response.setMedicationDosage(medication.getMedicationDosage());
@@ -165,9 +165,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             invoiceResponse.setMedications(medicationResponses);
 
-            invoiceResponses.add(invoiceResponse);
-        }
 
-        return invoiceResponses;
+        return invoiceResponse;
     }
 }

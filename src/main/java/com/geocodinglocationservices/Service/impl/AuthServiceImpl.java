@@ -262,21 +262,28 @@ private boolean isPatientDataValid(SignupRequest signUpRequest) {
     }
 
     @Override
-    public void handleNotificationInLogin(Long userId) {
+    public NotificationMessage handleNotificationInLogin(Long userId) {
+        NotificationMessage message = new NotificationMessage();
         if (reminderService.shouldNotifyUser(userId)) {
-            // Create and send the notification
-            System.out.println(reminderService.shouldNotifyUser(userId));
-            NotificationMessage message = new NotificationMessage();
-            message.setMessage("It's time to reorder your medication!");
-            message.setReminderTime(LocalDateTime.now());
+            List<String> medications = reminderService.getMedicationsForUser(userId);
+
+            if (!medications.isEmpty()) {
+                // Get the first medication name or handle multiple medications if needed
+                String medicationNames = String.join(", ", medications);
 
 
-            // Remove the user from the notification list
-            reminderService.removeUserFromNotificationList(userId);
+                message.setMessage("It's time to reorder your medication(s)");
+                message.setMedicationName(medicationNames);
+                message.setReminderTime(LocalDateTime.now());
+
+                // Remove the user from the notification list
+                reminderService.removeUserFromNotificationList(userId);
+
+                return message;
+            }
         }
 
-
-
+        return message;
     }
 
     @Override

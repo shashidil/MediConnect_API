@@ -17,6 +17,7 @@ public class InvoiceResponse {
     private double distance;
     private Double total;
     private Long pharmacistId;
+    private Long prescriptionId;
     private double pharmacistLatitude;
     private double pharmacistLongitude;
     private double customerLatitude;

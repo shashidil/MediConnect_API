@@ -29,9 +29,9 @@ public class InvoiceController {
         return ResponseEntity.ok(invoices);
     }
 
-    @GetMapping("/number/{invoiceNumber}")
-    public ResponseEntity<List<InvoiceResponse>> getInvoicesByInvoiceNumber(@PathVariable String invoiceNumber) throws Exception {
-        List<InvoiceResponse> invoices = invoiceService.getInvoicesByInvoiceNumber(invoiceNumber);
+    @GetMapping("/number/{invoiceId}")
+    public ResponseEntity<InvoiceResponse> getInvoicesByInvoiceNumber(@PathVariable Long invoiceId) throws Exception {
+        InvoiceResponse invoices = invoiceService.getInvoicesByInvoiceNumber(invoiceId);
         return ResponseEntity.ok(invoices);
     }
 }

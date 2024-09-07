@@ -3,10 +3,7 @@ package com.geocodinglocationservices.controllers;
 import com.geocodinglocationservices.Service.AuthService;
 import com.geocodinglocationservices.models.User;
 import com.geocodinglocationservices.payload.request.*;
-import com.geocodinglocationservices.payload.response.JwtResponse;
-import com.geocodinglocationservices.payload.response.MessageResponse;
-import com.geocodinglocationservices.payload.response.UserDTO;
-import com.geocodinglocationservices.payload.response.UserDetailsDto;
+import com.geocodinglocationservices.payload.response.*;
 import com.geocodinglocationservices.repository.RoleRepository;
 import com.geocodinglocationservices.repository.UserRepository;
 import com.geocodinglocationservices.security.jwt.JwtUtils;
@@ -64,8 +61,7 @@ public class AuthController {
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
 
-    Long userId = userDetails.getId();  // Get the user ID from the authenticated user
-    authService.handleNotificationInLogin(userId);
+
 
     return ResponseEntity.ok(new JwtResponse(jwt,
             userDetails.getId(),
@@ -137,6 +133,13 @@ public class AuthController {
     } catch (Exception e) {
       return ResponseEntity.badRequest().body("Error retrieving user details: " + e.getMessage());
     }
+  }
+
+  @GetMapping("/notification/{userId}")
+  public ResponseEntity<NotificationMessage> getNotification(@PathVariable Long userId) {
+    NotificationMessage notificationMessage = authService.handleNotificationInLogin(userId);
+    return ResponseEntity.ok(notificationMessage);
+
   }
 
   private boolean isPatientDataNotEmpty(SignupRequestPatient patient) {

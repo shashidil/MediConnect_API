@@ -51,6 +51,7 @@ public class OrderController {
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Long orderId,
             @Valid @RequestBody UpdateOrderRequest updateRequest) {
+        System.out.println(updateRequest.getTrackingNumber());
         OrderResponse updatedOrder = orderService.updateOrderStatus(orderId, updateRequest);
         return ResponseEntity.ok(updatedOrder);
     }

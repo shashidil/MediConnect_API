@@ -3,6 +3,7 @@ package com.geocodinglocationservices.Service;
 import com.geocodinglocationservices.models.User;
 import com.geocodinglocationservices.payload.request.SignupRequest;
 import com.geocodinglocationservices.payload.request.UserUpdateRequest;
+import com.geocodinglocationservices.payload.response.NotificationMessage;
 import com.geocodinglocationservices.payload.response.UserDTO;
 import com.geocodinglocationservices.payload.response.UserDetailsDto;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public interface AuthService {
 
     UserDTO updateUser(Long userId, UserUpdateRequest updateRequest) throws IOException;
 
-    void handleNotificationInLogin(Long userId);
+    NotificationMessage handleNotificationInLogin(Long userId);
 
     UserDetailsDto getUserDetails(Long userId);
 }

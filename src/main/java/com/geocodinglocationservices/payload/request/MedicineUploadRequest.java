@@ -1,10 +1,12 @@
 package com.geocodinglocationservices.payload.request;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class MedicineUploadRequest {
     private PrescriptionRequest prescriptionRequest;
-
     private PharmacistIdRequest pharmacistIdRequest;
 }

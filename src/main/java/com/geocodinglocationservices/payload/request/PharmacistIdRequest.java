@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -14,5 +13,5 @@ public class PharmacistIdRequest {
 
     @NotNull(message = "Pharmacist IDs list cannot be null")
     @NotEmpty(message = "Pharmacist IDs list cannot be empty")
-    private List<Long> PharmacistId;
+    private List<Long> pharmacistId;
 }

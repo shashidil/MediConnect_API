@@ -51,6 +51,8 @@ public class MedicineRequestController {
             @PathVariable("id") Long userId,
             @Valid @RequestBody MedicineUploadRequest medicineUploadRequest) {
 
+        System.out.println(medicineUploadRequest.getPharmacistIdRequest().getPharmacistId());
+        System.out.println(medicineUploadRequest.getPrescriptionRequest().getMedicationName());
         Prescription prescription = prescriptionService.storeMedicine(userId,
                 medicineUploadRequest.getPrescriptionRequest(),
                 medicineUploadRequest.getPharmacistIdRequest());

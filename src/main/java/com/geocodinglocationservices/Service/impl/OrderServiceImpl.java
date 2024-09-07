@@ -137,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
         if (updateRequest.getStatus() != null && !updateRequest.getStatus().isEmpty()){
             order.setOrderStatus(updateRequest.getStatus());
         }
-        else if(updateRequest.getTrackingNumber() != null &&  !updateRequest.getTrackingNumber().isEmpty()){
+        if(updateRequest.getTrackingNumber() != null &&  !updateRequest.getTrackingNumber().isEmpty()){
             order.setTrackingNumber(updateRequest.getTrackingNumber());
         }
 
