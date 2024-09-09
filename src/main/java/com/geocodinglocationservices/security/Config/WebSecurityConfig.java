@@ -45,7 +45,6 @@ public class WebSecurityConfig {
           "/api/pharmacists/**",
           "/api/invoices/**",
           "/api/medicine-requests/**",
-          "/api/checkRegNumber",
           "/api/pharmacist-account/**",
           "/api/orders/**",
           "/api/chats/**",
@@ -109,6 +108,7 @@ CorsConfigurationSource apiConfigurationSource() {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth ->
                     auth.requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/checkRegNumber/**").permitAll()
                             .requestMatchers(WHITE_LIST_URLS).authenticated()
                             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                             .requestMatchers("/ws/**").permitAll()

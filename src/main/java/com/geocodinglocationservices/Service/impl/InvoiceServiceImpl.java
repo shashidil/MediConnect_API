@@ -73,6 +73,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         medicineInvoice.setInvoiceNumber(invoice.getInvoiceNumber());
         medicineInvoice.setPharmacist(pharmacist);
         medicineInvoice.setCustomer(customer);
+        medicineInvoice.setStatus("Pending");
         medicineInvoice.setPatientName(prescriptionById.getUser().getUsername());
         medicineInvoice.setTotal(invoice.getTotalAmount());
 
@@ -98,8 +99,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     public List<InvoiceResponse> getInvoiceForCustomer(Long customerId) throws Exception {
         Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
+        String status = "Pending";
 
-        List<MedicineInvoice> invoices = invoiceRepository.findByCustomer(customer);
+        List<MedicineInvoice> invoices = invoiceRepository.findByCustomerAndStatus(customer,status );
         List<InvoiceResponse> invoiceResponses = new ArrayList<>();
 
         for (MedicineInvoice invoice : invoices) {

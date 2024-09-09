@@ -21,4 +21,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
           "WHERE :userId IN (cm.sender.id, cm.receiver.id) AND u.id != :userId")
   List<User> findDistinctChatUsers(Long userId);
 
+    User findByEmail(String email);
 }

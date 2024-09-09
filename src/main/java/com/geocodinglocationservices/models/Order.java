@@ -29,8 +29,6 @@ public class Order {
     @Column(nullable = false)
     private String orderNumber;
 
-    @Column(nullable = false)
-    private String paymentIntentId;
 
     @Column(nullable = false)
     private String orderStatus = "Awaiting Shipment";

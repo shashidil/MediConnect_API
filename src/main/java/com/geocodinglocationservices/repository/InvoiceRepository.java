@@ -3,6 +3,7 @@ package com.geocodinglocationservices.repository;
 import com.geocodinglocationservices.models.Customer;
 import com.geocodinglocationservices.models.MedicationDetail;
 import com.geocodinglocationservices.models.MedicineInvoice;
+import com.geocodinglocationservices.models.Prescription;
 import com.geocodinglocationservices.payload.response.InvoiceResponse;
 import com.geocodinglocationservices.payload.response.Report.MostSoldMedicineDTO;
 import com.geocodinglocationservices.payload.response.Report.OrderQuantityByDayDTO;
@@ -24,4 +25,8 @@ public interface InvoiceRepository extends JpaRepository<MedicineInvoice,Long> {
     List<MostSoldMedicineDTO> findTop5MostSoldMedicines(int month, int year);
 
 
+    List<MedicineInvoice> findByCustomerAndStatus(Customer customer, String status);
+
+
+    List<MedicineInvoice> findByPrescription(Prescription prescription);
 }

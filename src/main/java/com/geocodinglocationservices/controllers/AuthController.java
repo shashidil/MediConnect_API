@@ -1,6 +1,8 @@
 package com.geocodinglocationservices.controllers;
 
 import com.geocodinglocationservices.Service.AuthService;
+import com.geocodinglocationservices.Service.PasswordResetService;
+import com.geocodinglocationservices.models.PasswordResetToken;
 import com.geocodinglocationservices.models.User;
 import com.geocodinglocationservices.payload.request.*;
 import com.geocodinglocationservices.payload.response.*;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -44,7 +47,7 @@ public class AuthController {
   @Autowired
   private AuthService authService;
   @Autowired
-  private ReminderService reminderService;
+  private PasswordResetService resetService;
 
 
   @PostMapping("/signin")
@@ -141,6 +144,20 @@ public class AuthController {
     return ResponseEntity.ok(notificationMessage);
 
   }
+
+  @PostMapping("/forgot-password")
+  public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+    resetService.createPasswordResetToken(email);
+    return ResponseEntity.ok("Password reset email sent.");
+  }
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<String> resetPassword(@RequestParam String token,@RequestParam String newPassword) {
+
+    String resetPassword = resetService.resetPassword(token, newPassword);
+    return ResponseEntity.ok(resetPassword);
+  }
+
 
   private boolean isPatientDataNotEmpty(SignupRequestPatient patient) {
     return patient != null && !StringUtils.isBlank(patient.getUsername()) && !StringUtils.isBlank(patient.getEmail());

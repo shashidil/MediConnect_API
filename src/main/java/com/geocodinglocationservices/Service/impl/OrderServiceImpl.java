@@ -3,6 +3,7 @@ package com.geocodinglocationservices.Service.impl;
 import com.amazonaws.services.workmail.model.EntityNotFoundException;
 import com.geocodinglocationservices.Service.OrderService;
 import com.geocodinglocationservices.models.*;
+import com.geocodinglocationservices.payload.request.PaymentRequest;
 import com.geocodinglocationservices.payload.request.UpdateOrderRequest;
 import com.geocodinglocationservices.payload.response.OrderResponse;
 import com.geocodinglocationservices.repository.*;
@@ -39,17 +40,19 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private PharmacistRepo pharmacistRepo;
 
+    @Autowired
+    private PrescriptionRepo prescriptionRepo;
+
     private ModelMapper modelMapper = new ModelMapper();
 
     @Override
-    public OrderResponse processPayment(Long invoiceId, String orderNumber,Long pharmacistId, Long customerId, String paymentMethod, Double amount) {
-        Stripe.apiKey = apiKey;
+    public OrderResponse processPayment(PaymentRequest paymentRequest) {
 
-        MedicineInvoice invoice = invoiceRepository.findById(invoiceId)
+        MedicineInvoice invoice = invoiceRepository.findById(paymentRequest.getInvoiceId())
                 .orElseThrow(() -> new UsernameNotFoundException("Invoice not found"));
-        Customer customer = customerRepo.findById(customerId)
+        Customer customer = customerRepo.findById(paymentRequest.getCustomerId())
                 .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
-        Pharmacist pharmacist = pharmacistRepo.findById(pharmacistId)
+        Pharmacist pharmacist = pharmacistRepo.findById(paymentRequest.getPharmacistId())
                 .orElseThrow(() -> new UsernameNotFoundException("Pharmacist not found"));
 
         /*PharmacistAccount pharmacistAccount = pharmacistAccountRepo.findByPharmacistId(pharmacistId)
@@ -57,34 +60,21 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setInvoiceNumber(invoice.getInvoiceNumber());
-        order.setOrderNumber(orderNumber);
+        order.setOrderNumber(paymentRequest.getOrderNumber());
         order.setCustomer(customer);
         order.setPharmacist(pharmacist);
         order.setInvoice(invoice);
-        order.setPaymentMethod(paymentMethod);
+        order.setPaymentMethod(paymentRequest.getPaymentMethod());
         order.setPaymentStatus("Pending");
-        order.setOrderStatus("Awaiting Shipment"); // Default status
-        order.setTotalAmount(amount);
+        order.setOrderStatus("Awaiting Shipment");
+        order.setTotalAmount(paymentRequest.getAmount());
+        order.setPaymentStatus("Completed");
 
+        setStatus(invoice.getPrescription().getId());
 
-        Map<String, Object> paymentIntentParams = new HashMap<>();
-        paymentIntentParams.put("amount", (int) (amount * 100)); // Convert amount to cents
-        paymentIntentParams.put("currency", "usd");
-        paymentIntentParams.put("payment_method_types", new String[]{"card"});
-   /*     paymentIntentParams.put("transfer_data", Map.of(
-                "destination", pharmacistAccount.getStripeAccountId()
-        ));*/
+        orderRepo.save(order);
+        return modelMapper.map(order,OrderResponse.class);
 
-        try {
-            PaymentIntent paymentIntent = PaymentIntent.create(paymentIntentParams);
-            order.setPaymentIntentId(paymentIntent.getId());
-            order.setPaymentStatus("Completed");
-            orderRepo.save(order);
-            return modelMapper.map(order,OrderResponse.class);
-
-        } catch (StripeException e) {
-            throw new RuntimeException("Failed to process payment", e);
-        }
     }
 
     @Override
@@ -141,6 +131,18 @@ public class OrderServiceImpl implements OrderService {
         orderRepo.save(order);
 
         return modelMapper.map(order, OrderResponse.class);
+    }
+
+    public void setStatus(Long prescriptionId){
+
+        Prescription prescription = prescriptionRepo.findById(prescriptionId).orElseThrow(() -> new RuntimeException("PrescriptionNot Found"));
+        List<MedicineInvoice> medicineInvoiceList = invoiceRepository.findByPrescription(prescription);
+
+        for (MedicineInvoice invoice : medicineInvoiceList) {
+            invoice.setStatus("Complete");
+            invoiceRepository.save(invoice);
+        }
+
     }
 
 

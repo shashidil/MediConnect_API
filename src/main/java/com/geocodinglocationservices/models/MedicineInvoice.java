@@ -25,13 +25,15 @@ public class MedicineInvoice {
 
     private String patientName;
 
-    // Use @ElementCollection to map a list of MedicationDetail objects
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "medication_details", joinColumns = @JoinColumn(name = "invoice_id"))
     private List<MedicationDetail> medications = new ArrayList<>();
 
     @Column(nullable = false)
     private Double total;
+
+    @Column(nullable = false)
+    private String status;
 
     @CreationTimestamp
     @Column(nullable = false)

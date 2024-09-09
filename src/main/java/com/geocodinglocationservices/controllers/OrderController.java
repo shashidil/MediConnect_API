@@ -2,6 +2,7 @@ package com.geocodinglocationservices.controllers;
 
 import com.geocodinglocationservices.Service.OrderService;
 import com.geocodinglocationservices.models.Order;
+import com.geocodinglocationservices.payload.request.PaymentRequest;
 import com.geocodinglocationservices.payload.request.UpdateOrderRequest;
 import com.geocodinglocationservices.payload.response.OrderResponse;
 import com.stripe.exception.StripeException;
@@ -35,14 +36,10 @@ public class OrderController {
     }
 
     @PostMapping("/process-payment")
-    public ResponseEntity<OrderResponse> processPayment(
-            @RequestParam Long Id,
-            @RequestParam String orderNumber,
-            @RequestParam Long pharmacistId,
-            @RequestParam Long customerId,
-            @RequestParam String paymentMethod,
-            @RequestParam Double amount) {
-        OrderResponse order = orderService.processPayment(Id,orderNumber, pharmacistId, customerId, paymentMethod, amount);
+    public ResponseEntity<OrderResponse> processPayment(@RequestBody PaymentRequest paymentRequest) {
+
+        OrderResponse order = orderService.processPayment(paymentRequest);
+
         return ResponseEntity.ok(order);
     }
 
